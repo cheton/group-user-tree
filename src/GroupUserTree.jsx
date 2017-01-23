@@ -1,8 +1,8 @@
 import React from 'react';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import data from './data';
-import data2 from './data2';
-import BlockListTree from './BlockListTree';
+import LeftListTree from './LeftListTree';
+import RightListTree from './RightListTree';
 
 
 import './index.styl';
@@ -12,13 +12,12 @@ export default class GroupUserTree extends React.Component {
         super(props);
         this.state = {
             data,
-            data2,
             checkedNodes: []
         };
-        this.changeSomething = this.changeSomething.bind(this);
+        this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
 
-    changeSomething() {
+    getCheckedNodes() {
       console.log('Nodes', this.LeftTree.getCheckedNodes());
         this.setState({ checkedNodes: this.LeftTree.getCheckedNodes() });
     }
@@ -28,16 +27,16 @@ export default class GroupUserTree extends React.Component {
         return (
             <div>
                 <div className="leftTree">
-                    <BlockListTree
+                    <LeftListTree
                         data={this.state.data}
                         ref={(elem) => { if (elem) this.LeftTree = elem; }}
                     />
                 </div>
-                <button onClick={this.changeSomething}>to the right</button>
+                <button onClick={this.getCheckedNodes}>to the right</button>
                 <button>to the left</button>
 
                 <div className="rightTree">
-                    <BlockListTree
+                    <RightListTree
                         data={checkedNodes}
                     />
                 </div>
