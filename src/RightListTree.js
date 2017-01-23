@@ -9,13 +9,11 @@ export default class BlockListTree extends React.Component {
         super(props);
 
         this.handleFilter = this.handleFilter.bind(this);
-        this.getCheckedNodes = this.getCheckedNodes.bind(this);
+        this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
     }
 
     componentDidMount () {
         this.tree.loadData(this.props.data);
-        //console.log('wow', this.getCheckedNodes());
-        //this.props.changeSomething(this.getCheckedNodes());
     }
 
     componentWillReceiveProps (nextProps) {
@@ -41,18 +39,18 @@ export default class BlockListTree extends React.Component {
         this.tree.loadData(this.props.data);
     }
 
-    getCheckedNodes () {
+    getUncheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked && node.props.checked !== false && node.id !== 'root') {
-                node.props.choosen = true;
+            if (node.props.checked && node.props.checked !== false) {
+                node.props.choosen = false;
+                this.tree.updateNode(node);
+
                 return true;
             }
             return false;
         })
         .map((node) => {
-            const nodeToSend = { id: node.id, props: { ...node.props } };
-            nodeToSend.props.isFiltered = true;
-            return nodeToSend;
+            return node.id;
         });
 
         return checkedNodes;
@@ -73,11 +71,11 @@ export default class BlockListTree extends React.Component {
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
-                        const { checked = false, isFiltered = true } = props;
+                        const { checked = false, isFiltered = true, choosen = true } = props;
                         const more = node.hasChildren();
                         let style;
 
-                        if (!isFiltered) {
+                        if (!isFiltered || !choosen) {
                             return (<div
                                 data-id={id}
                                 style={{ display: 'none' }}

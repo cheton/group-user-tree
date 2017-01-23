@@ -15,11 +15,17 @@ export default class GroupUserTree extends React.Component {
             checkedNodes: []
         };
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
+        this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
     }
 
     getCheckedNodes() {
       console.log('Nodes', this.LeftTree.getCheckedNodes());
         this.setState({ checkedNodes: this.LeftTree.getCheckedNodes() });
+    }
+
+    getUncheckedNodes() {
+      //console.log('unchecked Nodes', this.RightTree.getUncheckedNodes());
+        this.LeftTree.uncheckNodes(this.RightTree.getUncheckedNodes())
     }
 
     render () {
@@ -33,11 +39,12 @@ export default class GroupUserTree extends React.Component {
                     />
                 </div>
                 <button onClick={this.getCheckedNodes}>to the right</button>
-                <button>to the left</button>
+                <button onClick={this.getUncheckedNodes}>to the left</button>
 
                 <div className="rightTree">
                     <RightListTree
                         data={checkedNodes}
+                        ref={(elem) => { if (elem) this.RightTree = elem; }}
                     />
                 </div>
             </div>

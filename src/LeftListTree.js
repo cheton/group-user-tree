@@ -9,17 +9,12 @@ export default class BlockListTree extends React.Component {
         super(props);
 
         this.handleFilter = this.handleFilter.bind(this);
+        this.uncheckNodes = this.uncheckNodes.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
 
     componentDidMount () {
         this.tree.loadData(this.props.data);
-        //console.log('wow', this.getCheckedNodes());
-        //this.props.changeSomething(this.getCheckedNodes());
-    }
-
-    componentWillReceiveProps (nextProps) {
-        this.tree.loadData(nextProps.data);
     }
 
     handleFilter (event) {
@@ -43,19 +38,26 @@ export default class BlockListTree extends React.Component {
 
     getCheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked && node.props.checked !== false && node.id !== 'root') {
+            if (node.props.checked && node.props.checked !== false || node.id === 'root' || node.props.choosen) {
                 node.props.choosen = true;
                 return true;
             }
             return false;
         })
         .map((node) => {
-            const nodeToSend = { id: node.id, props: { ...node.props } };
-            nodeToSend.props.isFiltered = true;
+            const nodeToSend = { id: node.id, props: { label: node.props.label } };
             return nodeToSend;
         });
 
         return checkedNodes;
+    }
+
+    uncheckNodes(ids) {
+      console.log('ids', ids);
+        ids.forEach((id) => {
+            this.tree.getNodeById(id).props.choosen = false;
+            console.log('uncheck it', this.tree.getNodeById(id));
+        });
     }
 
     render () {
