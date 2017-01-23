@@ -50,7 +50,9 @@ export default class BlockListTree extends React.Component {
             return false;
         })
         .map((node) => {
-            return { id: node.id, props: { ...node.props }, state: node.state };
+            const nodeToSend = { id: node.id, props: { ...node.props } };
+            nodeToSend.props.isFiltered = true;
+            return nodeToSend;
         });
 
         return checkedNodes;
