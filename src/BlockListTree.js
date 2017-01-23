@@ -14,7 +14,12 @@ export default class BlockListTree extends React.Component {
 
     componentDidMount () {
         this.tree.loadData(this.props.data);
-        this.props.changeSomething({lol:'lol'});
+        //console.log('wow', this.getCheckedNodes());
+        //this.props.changeSomething(this.getCheckedNodes());
+    }
+
+    componentWillReceiveProps (nextProps) {
+        this.tree.loadData(nextProps.data);
     }
 
     handleFilter (event) {
@@ -38,11 +43,16 @@ export default class BlockListTree extends React.Component {
 
     getCheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked === true && !node.hasChildren()) {
+            if (node.props.checked && node.props.checked !== false && node.id !== 'root') {
+                node.props.choosen = true;
                 return true;
             }
             return false;
+        })
+        .map((node) => {
+            return { id: node.id, props: { ...node.props }, state: node.state };
         });
+
         return checkedNodes;
     }
 
@@ -55,7 +65,7 @@ export default class BlockListTree extends React.Component {
                 />
                 <InfiniteTree
                     ref={(c) => {
-                        this.tree = c.tree;
+                        if (c) { this.tree = c.tree; }
                     }}
                     autoOpen
                     rowRenderer={(node, treeOptions) => {
@@ -107,7 +117,7 @@ export default class BlockListTree extends React.Component {
                     }}
                     selectable
                     shouldSelectNode={(rootNode) => {
-                        console.log(rootNode);
+                      console.log('rootNode', rootNode);
                         const more = rootNode.hasChildren();
 
                         const recursiveUpdate = (node) => {

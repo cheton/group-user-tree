@@ -4,6 +4,7 @@ import data from './data';
 import data2 from './data2';
 import BlockListTree from './BlockListTree';
 
+
 import './index.styl';
 
 export default class GroupUserTree extends React.Component {
@@ -12,27 +13,32 @@ export default class GroupUserTree extends React.Component {
         this.state = {
             data,
             data2,
-            somethingFromLeft: {}
+            checkedNodes: []
         };
         this.changeSomething = this.changeSomething.bind(this);
     }
 
-    changeSomething(something) {
-        this.setState({ somethingFromLeft: something });
+    changeSomething() {
+      console.log('Nodes', this.LeftTree.getCheckedNodes());
+        this.setState({ checkedNodes: this.LeftTree.getCheckedNodes() });
     }
 
     render () {
+        const { checkedNodes } = this.state;
         return (
             <div>
                 <div className="leftTree">
                     <BlockListTree
                         data={this.state.data}
-                        changeSomething={this.changeSomething}
+                        ref={(elem) => { if (elem) this.LeftTree = elem; }}
                     />
                 </div>
+                <button onClick={this.changeSomething}>to the right</button>
+                <button>to the left</button>
+
                 <div className="rightTree">
                     <BlockListTree
-                        data={this.state.data2}
+                        data={checkedNodes}
                     />
                 </div>
             </div>
