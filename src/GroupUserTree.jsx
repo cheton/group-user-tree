@@ -31,17 +31,18 @@ export default class GroupUserTree extends React.Component {
     render () {
         const { checkedNodes } = this.state;
         return (
-            <div>
-                <div className="leftTree">
+            <div className="container">
+                <div className="leftTree col-sm-4">
                     <LeftListTree
                         data={this.state.data}
                         ref={(elem) => { if (elem) this.LeftTree = elem; }}
                     />
                 </div>
-                <button onClick={this.getCheckedNodes}>to the right</button>
-                <button onClick={this.getUncheckedNodes}>to the left</button>
-
-                <div className="rightTree">
+                <div className="controls col-sm-4">
+                    <button onClick={this.getCheckedNodes}>to the right</button>
+                    <button onClick={this.getUncheckedNodes}>to the left</button>
+                </div>
+                <div className="rightTree col-sm-4">
                     <RightListTree
                         data={checkedNodes}
                         ref={(elem) => { if (elem) this.RightTree = elem; }}
