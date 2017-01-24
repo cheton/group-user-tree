@@ -8,6 +8,10 @@ export default class BlockListTree extends React.Component {
     constructor (props) {
         super(props);
 
+        this.state = {
+            filterMode: false
+        };
+
         this.handleFilter = this.handleFilter.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
@@ -18,6 +22,15 @@ export default class BlockListTree extends React.Component {
 
     handleFilter (event) {
         const searchKeyword = event.target.value.toLowerCase();
+        const { data } = this.props;
+
+        if (searchKeyword === '') {
+            this.tree.loadData(data);
+            this.setState({ filterMode: false });
+            return;
+        }
+
+        this.setState({ filterMode: true });
 
         this.tree.nodes.forEach((node) => {
             node.props = node.props || {};
@@ -32,21 +45,29 @@ export default class BlockListTree extends React.Component {
                 node = node.parent;
             }
         });
-        this.tree.loadData(this.props.data);
+
+        const checkedNodes = this.tree.nodes.filter((node) => {
+            return node.props.isFiltered === true;
+        })
+        .map((node) => {
+            const nodeToSend = { id: node.id, props: { label: node.props.label } };
+
+            return nodeToSend;
+        });
+
+        this.tree.loadData(checkedNodes);
     }
 
     getCheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked === true) {
-                return true;
-            }
-            return false;
+            return node.props.checked === true;
         }).filter((node) => {
             if (node.parent.props) {
                 return node.parent.props.checked !== true;
             } else if (node.parent.id === 'root') {
                 return true;
             }
+
             return true;
         })
         .map((node) => {
@@ -73,11 +94,11 @@ export default class BlockListTree extends React.Component {
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
-                        const { checked = false, isFiltered = true } = props;
+                        const { checked = false, isFiltered = true, filterMode } = props;
                         const more = node.hasChildren();
                         let style;
 
-                        if (!isFiltered) {
+                        if (!isFiltered && filterMode) {
                             return (<div
                                 data-id={id}
                                 style={{ display: 'none' }}
