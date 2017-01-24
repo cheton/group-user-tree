@@ -9,7 +9,6 @@ export default class BlockListTree extends React.Component {
         super(props);
 
         this.handleFilter = this.handleFilter.bind(this);
-        this.uncheckNodes = this.uncheckNodes.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
 
@@ -57,12 +56,6 @@ export default class BlockListTree extends React.Component {
         });
 
         return checkedNodes;
-    }
-
-    uncheckNodes(ids) {
-        ids.forEach((id) => {
-            this.tree.getNodeById(id).props.choosen = false;
-        });
     }
 
     render () {
