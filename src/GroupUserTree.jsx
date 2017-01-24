@@ -3,8 +3,6 @@ import 'react-infinite-tree/dist/react-infinite-tree.css';
 import data from './data';
 import LeftListTree from './LeftListTree';
 import RightListTree from './RightListTree';
-
-
 import './index.styl';
 
 export default class GroupUserTree extends React.Component {
@@ -14,18 +12,34 @@ export default class GroupUserTree extends React.Component {
             data,
             checkedNodes: []
         };
-        this.getCheckedNodes = this.getCheckedNodes.bind(this);
-        this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
+        this.mergeCheckedNodes = this.mergeCheckedNodes.bind(this);
+        this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
 
-    getCheckedNodes() {
-      console.log('Nodes', this.LeftTree.getCheckedNodes());
-        this.setState({ checkedNodes: this.LeftTree.getCheckedNodes() });
+    mergeCheckedNodes() {
+        let { checkedNodes } = this.state;
+        let newNodes = this.LeftTree.getCheckedNodes();
+        newNodes.forEach((newNode) => {
+            const isNew = checkedNodes.find((node) => {
+                return node.id === newNode.id;
+            });
+            !isNew && checkedNodes.push(newNode);
+        });
+        this.setState({ checkedNodes });
     }
 
-    getUncheckedNodes() {
-      //console.log('unchecked Nodes', this.RightTree.getUncheckedNodes());
-        this.LeftTree.uncheckNodes(this.RightTree.getUncheckedNodes())
+    mergeUnheckedNodes() {
+        const { checkedNodes } = this.state;
+        const newNodes = this.RightTree.getUncheckedNodes();
+
+        newNodes.forEach((newNode) => {
+            const index = checkedNodes.findIndex((node) => {
+                return node.id === newNode;
+            });
+            (index > -1) && checkedNodes.splice(index, 1);
+        });
+
+        this.setState({ checkedNodes });
     }
 
     render () {
@@ -35,17 +49,25 @@ export default class GroupUserTree extends React.Component {
                 <div className="leftTree col-sm-4">
                     <LeftListTree
                         data={this.state.data}
-                        ref={(elem) => { if (elem) this.LeftTree = elem; }}
+                        ref={elem => {
+                            if (elem) {
+                                this.LeftTree = elem;
+                            }
+                        }}
                     />
                 </div>
                 <div className="controls col-sm-4">
-                    <button onClick={this.getCheckedNodes}>to the right</button>
-                    <button onClick={this.getUncheckedNodes}>to the left</button>
+                    <button onClick={this.mergeCheckedNodes}>to the right</button>
+                    <button onClick={this.mergeUnheckedNodes}>to the left</button>
                 </div>
                 <div className="rightTree col-sm-4">
                     <RightListTree
                         data={checkedNodes}
-                        ref={(elem) => { if (elem) this.RightTree = elem; }}
+                        ref={elem => {
+                            if (elem) {
+                                this.RightTree = elem;
+                            }
+                        }}
                     />
                 </div>
             </div>

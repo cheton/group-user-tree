@@ -38,14 +38,21 @@ export default class BlockListTree extends React.Component {
 
     getCheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked && node.props.checked !== false || node.id === 'root' || node.props.choosen) {
-                node.props.choosen = true;
+            if (node.props.checked === true) {
                 return true;
             }
             return false;
+        }).filter((node) => {
+            if (node.parent.props) {
+                return node.parent.props.checked !== true;
+            } else if (node.parent.id === 'root') {
+                return true;
+            }
+            return true;
         })
         .map((node) => {
             const nodeToSend = { id: node.id, props: { label: node.props.label } };
+
             return nodeToSend;
         });
 
@@ -53,10 +60,8 @@ export default class BlockListTree extends React.Component {
     }
 
     uncheckNodes(ids) {
-      console.log('ids', ids);
         ids.forEach((id) => {
             this.tree.getNodeById(id).props.choosen = false;
-            console.log('uncheck it', this.tree.getNodeById(id));
         });
     }
 

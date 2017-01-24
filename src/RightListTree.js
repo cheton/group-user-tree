@@ -71,11 +71,11 @@ export default class BlockListTree extends React.Component {
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
-                        const { checked = false, isFiltered = true, choosen = true } = props;
+                        const { checked = false, isFiltered = true } = props;
                         const more = node.hasChildren();
                         let style;
 
-                        if (!isFiltered || !choosen) {
+                        if (!isFiltered) {
                             return (<div
                                 data-id={id}
                                 style={{ display: 'none' }}
