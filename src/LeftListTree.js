@@ -24,37 +24,37 @@ export default class BlockListTree extends React.Component {
         const searchKeyword = event.target.value.toLowerCase();
         const { data } = this.props;
 
+        this.tree.loadData(data);
         if (searchKeyword === '') {
-            this.tree.loadData(data);
             this.setState({ filterMode: false });
             return;
         }
 
         this.setState({ filterMode: true });
 
-        this.tree.nodes.forEach((node) => {
-            node.props = node.props || {};
-
-            if (node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '') {
-                node.props.isFiltered = false;
-                return;
-            }
-
-            while (node && node.parent) {
-                node.props.isFiltered = true;
-                node = node.parent;
-            }
-        });
-
         const checkedNodes = this.tree.nodes.filter((node) => {
-            return node.props.isFiltered === true;
+            node.props = node.props || {};
+            return !(node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '');
         })
         .map((node) => {
             const nodeToSend = { id: node.id, props: { label: node.props.label } };
-
+            if (node.hasChildren()) {
+                nodeToSend.children = [...node.children].map((child) => {
+                    return { id: `${child.id}-clone`, props: { label: child.props.label } };
+                });
+            }
             return nodeToSend;
         });
 
+        //  checkedNodes = this.tree.nodes.filter((node) => {
+        //     return node.props.isFiltered === true;
+        // })
+        // .map((node) => {
+        //     const nodeToSend = { id: node.id, props: { label: node.props.label } };
+        //
+        //     return nodeToSend;
+        // });
+        console.log(checkedNodes);
         this.tree.loadData(checkedNodes);
     }
 
@@ -90,15 +90,16 @@ export default class BlockListTree extends React.Component {
                     ref={(c) => {
                         if (c) { this.tree = c.tree; }
                     }}
-                    autoOpen
+                    autoOpen={!this.state.filterMode}
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
-                        const { checked = false, isFiltered = true, filterMode } = props;
+                        const { checked = false, isFiltered = true } = props;
+                        const { filterMode } = this.state;
                         const more = node.hasChildren();
                         let style;
-
-                        if (!isFiltered && filterMode) {
+                        console.log('filterMode', filterMode);
+                        if (!isFiltered && !filterMode) {
                             return (<div
                                 data-id={id}
                                 style={{ display: 'none' }}
