@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import InfiniteTree from 'react-infinite-tree';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import './index.styl';
@@ -27,11 +26,10 @@ export default class BlockListTree extends React.Component {
     }
 
     getCheckedNodes () {
-        const nodesToFilter = this.tree.nodes;
-
-        const checkedNodes = nodesToFilter.filter((node) => {
+        const checkedNodes = this.tree.nodes.filter((node) => {
             return node.props.checked === true;
-        }).filter((node) => {
+        })
+        .filter((node) => {
             if (node.id === 'search' || node.id === 'noResult') {
                 return false;
             } else if (node.parent.props) {
@@ -49,9 +47,9 @@ export default class BlockListTree extends React.Component {
                     clonedId: node.props.clonedId
                 }
             };
-
             return nodeToSend;
         });
+
         return checkedNodes;
     }
 
@@ -76,54 +74,7 @@ export default class BlockListTree extends React.Component {
                         }
                     }}
                     autoOpen={!this.state.searchMode}
-                    rowRenderer={(node, treeOptions) => {
-                        const { id, loadOnDemand = false, state, props = {} } = node;
-                        const { depth, open } = state;
-                        const { checked = false, isFiltered = true } = props;
-                        const { searchMode } = this.state;
-                        const more = node.hasChildren();
-                        let style;
-
-                        if (!isFiltered && !searchMode) {
-                            return (<div
-                                data-id={id}
-                                style={{ display: 'none' }}
-                            />);
-                        }
-
-                        if (checked === 'partial') {
-                            style = 'icon-checkbox-checked';
-                        } else {
-                            style = checked ? 'icon-checkmark2' : 'icon-checkbox-unchecked';
-                        }
-
-                        return (
-                            <div
-                                className={classNames(
-                                  'infinite-tree-item',
-                                  { 'infinite-tree-selected': checked }
-                                )}
-                                data-id={id}
-                            >
-                                <div
-                                    className="infinite-tree-node"
-                                    style={{ marginLeft: depth * 18 }}
-                                >
-                                    {!more && loadOnDemand &&
-                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
-                                    }
-                                    {more && open &&
-                                        <a className={classNames(treeOptions.togglerClass)}>▼</a>
-                                    }
-                                    {more && !open &&
-                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
-                                    }
-                                    <i className={style} aria-hidden="true" />
-                                    <span className="infinite-tree-title">{props.label}</span>
-                                </div>
-                            </div>
-                        );
-                    }}
+                    rowRenderer={this.props.rowRenderer}
                     selectable
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
@@ -209,6 +160,7 @@ export default class BlockListTree extends React.Component {
 
 BlockListTree.propTypes = {
     isFiltered: React.PropTypes.bool,
+    rowRenderer: React.PropTypes.func,
     handleSearch: React.PropTypes.func,
     data: React.PropTypes.obj,
     checked: React.PropTypes.oneOfType([

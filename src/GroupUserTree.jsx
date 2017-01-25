@@ -3,11 +3,13 @@ import 'react-infinite-tree/dist/react-infinite-tree.css';
 import data from './data';
 import LeftListTree from './LeftListTree';
 import RightListTree from './RightListTree';
+import rowRenderer from './rowRenderer';
 import './index.styl';
 
 export default class GroupUserTree extends React.Component {
     constructor (props) {
         super(props);
+
         this.state = {
             data,
             checkedNodes: {
@@ -18,6 +20,7 @@ export default class GroupUserTree extends React.Component {
                 children: []
             }
         };
+
         this.mergeCheckedNodes = this.mergeCheckedNodes.bind(this);
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
@@ -131,6 +134,7 @@ export default class GroupUserTree extends React.Component {
                             }
                         }}
                         handleSearch={this.handleSearch}
+                        rowRenderer={rowRenderer}
                     />
                 </div>
                 <div className="controls col-sm-4">
@@ -141,6 +145,7 @@ export default class GroupUserTree extends React.Component {
                     <RightListTree
                         data={checkedNodes}
                         handleSearch={this.handleSearch}
+                        rowRenderer={rowRenderer}
                         ref={elem => {
                             if (elem) {
                                 this.rightTree = elem;

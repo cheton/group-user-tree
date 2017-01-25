@@ -1,5 +1,4 @@
 import React from 'react';
-import classNames from 'classnames';
 import InfiniteTree from 'react-infinite-tree';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import './index.styl';
@@ -12,7 +11,6 @@ export default class BlockListTree extends React.Component {
             searchMode: false
         };
 
-        this.handleFilter = this.handleFilter.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
     }
@@ -28,25 +26,6 @@ export default class BlockListTree extends React.Component {
         }
 
         this.tree.loadData(nextProps.data);
-    }
-
-    handleFilter (event) {
-        const searchKeyword = event.target.value.toLowerCase();
-
-        this.tree.nodes.forEach((node) => {
-            node.props = node.props || {};
-
-            if (node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '') {
-                node.props.isFiltered = false;
-                return;
-            }
-
-            while (node && node.parent) {
-                node.props.isFiltered = true;
-                node = node.parent;
-            }
-        });
-        this.tree.loadData(this.props.data);
     }
 
     handleSearch (event) {
@@ -92,53 +71,7 @@ export default class BlockListTree extends React.Component {
                         }
                     }}
                     autoOpen
-                    rowRenderer={(node, treeOptions) => {
-                        const { id, loadOnDemand = false, state, props = {} } = node;
-                        const { depth, open } = state;
-                        const { checked = false, isFiltered = true } = props;
-                        const more = node.hasChildren();
-                        let style;
-
-                        if (!isFiltered) {
-                            return (<div
-                                data-id={id}
-                                style={{ display: 'none' }}
-                            />);
-                        }
-
-                        if (checked === 'partial') {
-                            style = 'icon-checkbox-checked';
-                        } else {
-                            style = checked ? 'icon-checkmark2' : 'icon-checkbox-unchecked';
-                        }
-
-                        return (
-                            <div
-                                className={classNames(
-                                  'infinite-tree-item',
-                                  { 'infinite-tree-selected': checked }
-                                )}
-                                data-id={id}
-                            >
-                                <div
-                                    className="infinite-tree-node"
-                                    style={{ marginLeft: depth * 18 }}
-                                >
-                                    {!more && loadOnDemand &&
-                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
-                                    }
-                                    {more && open &&
-                                        <a className={classNames(treeOptions.togglerClass)}>▼</a>
-                                    }
-                                    {more && !open &&
-                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
-                                    }
-                                    <i className={style} aria-hidden="true" />
-                                    <span className="infinite-tree-title">{props.label}</span>
-                                </div>
-                            </div>
-                        );
-                    }}
+                    rowRenderer={this.props.rowRenderer}
                     selectable
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
@@ -224,6 +157,7 @@ export default class BlockListTree extends React.Component {
 
 BlockListTree.propTypes = {
     handleSearch: React.PropTypes.func,
+    rowRenderer: React.PropTypes.func,
     isFiltered: React.PropTypes.bool,
     data: React.PropTypes.obj,
     checked: React.PropTypes.oneOfType([
