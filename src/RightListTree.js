@@ -13,11 +13,25 @@ export default class BlockListTree extends React.Component {
     }
 
     componentDidMount () {
-        this.tree.loadData(this.props.data);
+        const rootNode = {
+            id: 'selectedRoot',
+            props: {
+                label: 'Selected Users / Groups'
+            },
+            children: this.props.data
+        };
+        this.tree.loadData(rootNode);
     }
 
     componentWillReceiveProps (nextProps) {
-        this.tree.loadData(nextProps.data);
+        const rootNode = {
+            id: 'selectedRoot',
+            props: {
+                label: 'Selected Users / Groups'
+            },
+            children: nextProps.data
+        };
+        this.tree.loadData(rootNode);
     }
 
     handleFilter (event) {
