@@ -55,8 +55,10 @@ export default class BlockListTree extends React.Component {
             <div>
                 <form onSubmit={this.handleSearch}>
                     <input
-                        name="keyWord"
                         type="text"
+                        name="keyWord"
+                        style={{ width: '100%' }}
+                        placeholder="Search...(press enter to search)"
                         ref={(c) => {
                             if (c) {
                                 this.form = c.form;
