@@ -126,6 +126,7 @@ export default class GroupUserTree extends React.Component {
         return (
             <div className="container">
                 <div className="leftTree col-sm-4">
+                    <div>Availeble Users / Groups</div>
                     <LeftListTree
                         data={this.state.data}
                         ref={elem => {
@@ -138,10 +139,11 @@ export default class GroupUserTree extends React.Component {
                     />
                 </div>
                 <div className="controls col-sm-4">
-                    <button onClick={this.mergeCheckedNodes}>to the right</button>
-                    <button onClick={this.mergeUnheckedNodes}>to the left</button>
+                    <button onClick={this.mergeCheckedNodes}>{'Add >>'}</button>
+                    <button onClick={this.mergeUnheckedNodes}>{'<< Remove'}</button>
                 </div>
                 <div className="rightTree col-sm-4">
+                    <div className="tree-title">Selected Users / Groups</div>
                     <RightListTree
                         data={checkedNodes}
                         handleSearch={this.handleSearch}
