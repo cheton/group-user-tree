@@ -8,30 +8,26 @@ export default class BlockListTree extends React.Component {
     constructor (props) {
         super(props);
 
+        this.state = {
+            searchMode: false
+        };
+
         this.handleFilter = this.handleFilter.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
         this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
     }
 
     componentDidMount () {
-        const rootNode = {
-            id: 'selectedRoot',
-            props: {
-                label: 'Selected Users / Groups'
-            },
-            children: this.props.data
-        };
-        this.tree.loadData(rootNode);
+        this.tree.loadData(this.props.data);
     }
 
     componentWillReceiveProps (nextProps) {
-        const rootNode = {
-            id: 'selectedRoot',
-            props: {
-                label: 'Selected Users / Groups'
-            },
-            children: nextProps.data
-        };
-        this.tree.loadData(rootNode);
+        if (this.state.searchMode) {
+            this.handleSearch();
+            return;
+        }
+
+        this.tree.loadData(nextProps.data);
     }
 
     handleFilter (event) {
@@ -53,10 +49,72 @@ export default class BlockListTree extends React.Component {
         this.tree.loadData(this.props.data);
     }
 
+    handleSearch (event) {
+        event && event.preventDefault();
+        const searchKeyword = this.form.keyWord.value.toLowerCase();
+        const { data } = this.props;
+
+        this.tree.loadData(data);
+        if (searchKeyword === '') {
+            return;
+        }
+
+        this.setState({ searchMode: true });
+
+        let checkedNodes = this.tree.nodes.filter((node) => {
+            if (node.id === 'selectedRoot') {
+                return false;
+            }
+            node.props = node.props || {};
+            return !(node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '');
+        })
+        .map((node) => {
+            const nodeToSend = {
+                id: `${node.id + Math.random()}`,
+                props: {
+                    label: node.props.label,
+                    checked: node.props.checked,
+                    clone: true,
+                    clonedId: node.id
+                }
+            };
+
+            if (node.hasChildren()) {
+                nodeToSend.children = [...node.children].map((child) => {
+                    return {
+                        id: `${child.id + Math.random()}`,
+                        props: {
+                            label: child.props.label,
+                            checked: child.props.checked,
+                            clone: true,
+                            clonedId: child.id
+                        }
+                    };
+                });
+            }
+
+            return nodeToSend;
+        });
+
+        if (checkedNodes.length === 0) {
+            checkedNodes = [{
+                id: 'noResult',
+                props: { label: 'No result' }
+            }];
+        }
+
+        const searchNode = {
+            id: 'search',
+            props: { label: `Search: ${searchKeyword}` },
+            children: checkedNodes
+        };
+
+        this.tree.loadData(searchNode);
+    }
+
     getUncheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
             if (node.props.checked && node.props.checked !== false) {
-                node.props.choosen = false;
                 this.tree.updateNode(node);
 
                 return true;
@@ -64,7 +122,7 @@ export default class BlockListTree extends React.Component {
             return false;
         })
         .map((node) => {
-            return node.id;
+            return { id: node.id, clone: node.props.clone, clonedId: node.props.clonedId };
         });
 
         return checkedNodes;
@@ -73,10 +131,18 @@ export default class BlockListTree extends React.Component {
     render () {
         return (
             <div>
-                <input
-                    type="text"
-                    onChange={this.handleFilter}
-                />
+                <form onSubmit={this.handleSearch}>
+                    <input
+                        name="keyWord"
+                        type="text"
+                        ref={(c) => {
+                            if (c) {
+                                this.form = c.form;
+                            }
+                        }}
+                    />
+                </form>
+
                 <InfiniteTree
                     ref={(c) => {
                         if (c) {
@@ -133,6 +199,7 @@ export default class BlockListTree extends React.Component {
                     }}
                     selectable
                     shouldSelectNode={(rootNode) => {
+                        console.log('selected node', rootNode);
                         const more = rootNode.hasChildren();
 
                         const recursiveUpdate = (node) => {

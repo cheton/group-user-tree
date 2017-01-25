@@ -9,10 +9,10 @@ export default class BlockListTree extends React.Component {
         super(props);
 
         this.state = {
-            filterMode: false
+            searchMode: false
         };
 
-        this.handleFilter = this.handleFilter.bind(this);
+        this.handleSearch = this.handleSearch.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
 
@@ -20,17 +20,17 @@ export default class BlockListTree extends React.Component {
         this.tree.loadData(this.props.data);
     }
 
-    handleFilter (event) {
+    handleSearch (event) {
         const searchKeyword = event.target.value.toLowerCase();
         const { data } = this.props;
 
         this.tree.loadData(data);
         if (searchKeyword === '') {
-            this.setState({ filterMode: false });
+            this.setState({ searchMode: false });
             return;
         }
 
-        this.setState({ filterMode: true });
+        this.setState({ searchMode: true });
 
         let checkedNodes = this.tree.nodes.filter((node) => {
             node.props = node.props || {};
@@ -86,10 +86,10 @@ export default class BlockListTree extends React.Component {
         const checkedNodes = nodesToFilter.filter((node) => {
             return node.props.checked === true;
         }).filter((node) => {
-            if (node.parent.props) {
-                return node.parent.props.checked !== true || node.parent.id === 'search';
-            } else if (node.id === 'search') {
+            if (node.id === 'search' || node.id === 'noResult') {
                 return false;
+            } else if (node.parent.props) {
+                return node.parent.props.checked !== true || node.parent.id === 'search';
             }
 
             return true;
@@ -114,7 +114,7 @@ export default class BlockListTree extends React.Component {
             <div>
                 <input
                     type="text"
-                    onChange={this.handleFilter}
+                    onChange={this.handleSearch}
                 />
                 <InfiniteTree
                     ref={(c) => {
@@ -122,16 +122,16 @@ export default class BlockListTree extends React.Component {
                             this.tree = c.tree;
                         }
                     }}
-                    autoOpen={!this.state.filterMode}
+                    autoOpen={!this.state.searchMode}
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
                         const { checked = false, isFiltered = true } = props;
-                        const { filterMode } = this.state;
+                        const { searchMode } = this.state;
                         const more = node.hasChildren();
                         let style;
 
-                        if (!isFiltered && !filterMode) {
+                        if (!isFiltered && !searchMode) {
                             return (<div
                                 data-id={id}
                                 style={{ display: 'none' }}

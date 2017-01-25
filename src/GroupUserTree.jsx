@@ -10,7 +10,13 @@ export default class GroupUserTree extends React.Component {
         super(props);
         this.state = {
             data,
-            checkedNodes: []
+            checkedNodes: {
+                id: 'selectedRoot',
+                props: {
+                    label: 'Selected Users / Groups'
+                },
+                children: []
+            }
         };
         this.mergeCheckedNodes = this.mergeCheckedNodes.bind(this);
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
@@ -18,17 +24,17 @@ export default class GroupUserTree extends React.Component {
 
     mergeCheckedNodes() {
         const { checkedNodes } = this.state;
-        let newNodes = this.LeftTree.getCheckedNodes();
+        const newNodes = this.LeftTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.props.clone;
 
             newNode.id = isClone ? newNode.props.clonedId : newNode.id;
-            const isNew = checkedNodes.find((node) => {
+            const isNew = checkedNodes.children.find((node) => {
                 return node.id === newNode.id;
             });
 
-            !isNew && checkedNodes.push(newNode);
+            !isNew && checkedNodes.children.push(newNode);
         });
         this.setState({ checkedNodes });
     }
@@ -38,10 +44,13 @@ export default class GroupUserTree extends React.Component {
         const newNodes = this.RightTree.getUncheckedNodes();
 
         newNodes.forEach((newNode) => {
-            const index = checkedNodes.findIndex((node) => {
-                return node.id === newNode;
+            const isClone = newNode.clone;
+            newNode.id = isClone ? newNode.clonedId : newNode.id;
+
+            const index = checkedNodes.children.findIndex((node) => {
+                return node.id === newNode.id;
             });
-            (index > -1) && checkedNodes.splice(index, 1);
+            (index > -1) && checkedNodes.children.splice(index, 1);
         });
 
         this.setState({ checkedNodes });
