@@ -50,9 +50,10 @@ export default class BlockListTree extends React.Component {
     }
 
     handleSearch (event) {
-        event && event.preventDefault();
         const searchKeyword = this.form.keyWord.value.toLowerCase();
         const { data } = this.props;
+
+        event && event.preventDefault();
 
         this.tree.loadData(data);
         if (searchKeyword === '') {
@@ -142,7 +143,6 @@ export default class BlockListTree extends React.Component {
                         }}
                     />
                 </form>
-
                 <InfiniteTree
                     ref={(c) => {
                         if (c) {

@@ -21,8 +21,10 @@ export default class BlockListTree extends React.Component {
     }
 
     handleSearch (event) {
-        const searchKeyword = event.target.value.toLowerCase();
+        const searchKeyword = this.form.keyWord.value.toLowerCase();
         const { data } = this.props;
+
+        event && event.preventDefault();
 
         this.tree.loadData(data);
         if (searchKeyword === '') {
@@ -112,10 +114,17 @@ export default class BlockListTree extends React.Component {
     render () {
         return (
             <div>
-                <input
-                    type="text"
-                    onChange={this.handleSearch}
-                />
+                <form onSubmit={this.handleSearch}>
+                    <input
+                        name="keyWord"
+                        type="text"
+                        ref={(c) => {
+                            if (c) {
+                                this.form = c.form;
+                            }
+                        }}
+                    />
+                </form>
                 <InfiniteTree
                     ref={(c) => {
                         if (c) {
