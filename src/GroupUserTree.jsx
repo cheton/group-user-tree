@@ -17,12 +17,17 @@ export default class GroupUserTree extends React.Component {
     }
 
     mergeCheckedNodes() {
-        let { checkedNodes } = this.state;
+        const { checkedNodes } = this.state;
         let newNodes = this.LeftTree.getCheckedNodes();
+
         newNodes.forEach((newNode) => {
+            const isClone = newNode.props.clone;
+
+            newNode.id = isClone ? newNode.props.clonedId : newNode.id;
             const isNew = checkedNodes.find((node) => {
                 return node.id === newNode.id;
             });
+
             !isNew && checkedNodes.push(newNode);
         });
         this.setState({ checkedNodes });

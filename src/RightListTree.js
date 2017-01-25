@@ -65,7 +65,9 @@ export default class BlockListTree extends React.Component {
                 />
                 <InfiniteTree
                     ref={(c) => {
-                        if (c) { this.tree = c.tree; }
+                        if (c) {
+                            this.tree = c.tree;
+                        }
                     }}
                     autoOpen
                     rowRenderer={(node, treeOptions) => {
@@ -117,7 +119,6 @@ export default class BlockListTree extends React.Component {
                     }}
                     selectable
                     shouldSelectNode={(rootNode) => {
-                      console.log('rootNode', rootNode);
                         const more = rootNode.hasChildren();
 
                         const recursiveUpdate = (node) => {
@@ -201,6 +202,7 @@ export default class BlockListTree extends React.Component {
 
 BlockListTree.propTypes = {
     isFiltered: React.PropTypes.bool,
+    data: React.PropTypes.obj,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.bool

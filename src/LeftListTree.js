@@ -32,50 +32,80 @@ export default class BlockListTree extends React.Component {
 
         this.setState({ filterMode: true });
 
-        const checkedNodes = this.tree.nodes.filter((node) => {
+        let checkedNodes = this.tree.nodes.filter((node) => {
             node.props = node.props || {};
             return !(node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '');
         })
         .map((node) => {
-            const nodeToSend = { id: node.id, props: { label: node.props.label } };
+            const nodeToSend = {
+                id: `${node.id + Math.random()}`,
+                props: {
+                    label: node.props.label,
+                    checked: node.props.checked,
+                    clone: true,
+                    clonedId: node.id
+                }
+            };
+
             if (node.hasChildren()) {
                 nodeToSend.children = [...node.children].map((child) => {
-                    return { id: `${child.id}-clone`, props: { label: child.props.label } };
+                    return {
+                        id: `${child.id + Math.random()}`,
+                        props: {
+                            label: child.props.label,
+                            checked: child.props.checked,
+                            clone: true,
+                            clonedId: child.id
+                        }
+                    };
                 });
             }
+
             return nodeToSend;
         });
 
-        //  checkedNodes = this.tree.nodes.filter((node) => {
-        //     return node.props.isFiltered === true;
-        // })
-        // .map((node) => {
-        //     const nodeToSend = { id: node.id, props: { label: node.props.label } };
-        //
-        //     return nodeToSend;
-        // });
-        console.log(checkedNodes);
-        this.tree.loadData(checkedNodes);
+        if (checkedNodes.length === 0) {
+            checkedNodes = [{
+                id: 'noResult',
+                props: { label: 'No result' }
+            }];
+        }
+
+        const searchNode = {
+            id: 'search',
+            props: { label: `Search: ${searchKeyword}` },
+            children: checkedNodes
+        };
+
+        this.tree.loadData(searchNode);
     }
 
     getCheckedNodes () {
-        const checkedNodes = this.tree.nodes.filter((node) => {
+        const nodesToFilter = this.tree.nodes;
+
+        const checkedNodes = nodesToFilter.filter((node) => {
             return node.props.checked === true;
         }).filter((node) => {
             if (node.parent.props) {
-                return node.parent.props.checked !== true;
-            } else if (node.parent.id === 'root') {
-                return true;
+                return node.parent.props.checked !== true || node.parent.id === 'search';
+            } else if (node.id === 'search') {
+                return false;
             }
 
             return true;
         })
         .map((node) => {
-            const nodeToSend = { id: node.id, props: { label: node.props.label } };
+            const nodeToSend = {
+                id: node.id,
+                props: {
+                    label: node.props.label,
+                    clone: node.props.clone,
+                    clonedId: node.props.clonedId
+                }
+            };
 
             return nodeToSend;
         });
-
         return checkedNodes;
     }
 
@@ -88,7 +118,9 @@ export default class BlockListTree extends React.Component {
                 />
                 <InfiniteTree
                     ref={(c) => {
-                        if (c) { this.tree = c.tree; }
+                        if (c) {
+                            this.tree = c.tree;
+                        }
                     }}
                     autoOpen={!this.state.filterMode}
                     rowRenderer={(node, treeOptions) => {
@@ -98,7 +130,7 @@ export default class BlockListTree extends React.Component {
                         const { filterMode } = this.state;
                         const more = node.hasChildren();
                         let style;
-                        console.log('filterMode', filterMode);
+
                         if (!isFiltered && !filterMode) {
                             return (<div
                                 data-id={id}
@@ -141,7 +173,6 @@ export default class BlockListTree extends React.Component {
                     }}
                     selectable
                     shouldSelectNode={(rootNode) => {
-                      console.log('rootNode', rootNode);
                         const more = rootNode.hasChildren();
 
                         const recursiveUpdate = (node) => {
@@ -225,6 +256,7 @@ export default class BlockListTree extends React.Component {
 
 BlockListTree.propTypes = {
     isFiltered: React.PropTypes.bool,
+    data: React.PropTypes.obj,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.bool
