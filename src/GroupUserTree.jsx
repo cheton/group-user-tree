@@ -22,11 +22,9 @@ export default class GroupUserTree extends React.Component {
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
 
-    handleSearch (event) {
+    handleSearch () {
         const searchKeyword = this.form.keyWord.value.toLowerCase();
         const { data } = this.props;
-
-        event && event.preventDefault();
 
         this.tree.loadData(data);
         if (searchKeyword === '') {
@@ -142,6 +140,7 @@ export default class GroupUserTree extends React.Component {
                 <div className="rightTree col-sm-4">
                     <RightListTree
                         data={checkedNodes}
+                        handleSearch={this.handleSearch}
                         ref={elem => {
                             if (elem) {
                                 this.rightTree = elem;
@@ -155,6 +154,7 @@ export default class GroupUserTree extends React.Component {
 }
 
 GroupUserTree.propTypes = {
+    data: React.PropTypes.obj,
     isFiltered: React.PropTypes.bool,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,

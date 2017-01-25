@@ -21,65 +21,9 @@ export default class BlockListTree extends React.Component {
     }
 
     handleSearch (event) {
-        const searchKeyword = this.form.keyWord.value.toLowerCase();
-        const { data } = this.props;
-
-        event && event.preventDefault();
-
-        this.tree.loadData(data);
-        if (searchKeyword === '') {
-            this.setState({ searchMode: false });
-            return;
-        }
-
-        this.setState({ searchMode: true });
-
-        let checkedNodes = this.tree.nodes.filter((node) => {
-            node.props = node.props || {};
-            return !(node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '');
-        })
-        .map((node) => {
-            const nodeToSend = {
-                id: `${node.id + Math.random()}`,
-                props: {
-                    label: node.props.label,
-                    checked: node.props.checked,
-                    clone: true,
-                    clonedId: node.id
-                }
-            };
-
-            if (node.hasChildren()) {
-                nodeToSend.children = [...node.children].map((child) => {
-                    return {
-                        id: `${child.id + Math.random()}`,
-                        props: {
-                            label: child.props.label,
-                            checked: child.props.checked,
-                            clone: true,
-                            clonedId: child.id
-                        }
-                    };
-                });
-            }
-
-            return nodeToSend;
-        });
-
-        if (checkedNodes.length === 0) {
-            checkedNodes = [{
-                id: 'noResult',
-                props: { label: 'No result' }
-            }];
-        }
-
-        const searchNode = {
-            id: 'search',
-            props: { label: `Search: ${searchKeyword}` },
-            children: checkedNodes
-        };
-
-        this.tree.loadData(searchNode);
+        event.preventDefault();
+        const bindedSearch = this.props.handleSearch.bind(this);
+        bindedSearch(event);
     }
 
     getCheckedNodes () {
@@ -265,6 +209,7 @@ export default class BlockListTree extends React.Component {
 
 BlockListTree.propTypes = {
     isFiltered: React.PropTypes.bool,
+    handleSearch: React.PropTypes.func,
     data: React.PropTypes.obj,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
