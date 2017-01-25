@@ -24,7 +24,7 @@ export default class GroupUserTree extends React.Component {
 
     mergeCheckedNodes() {
         const { checkedNodes } = this.state;
-        const newNodes = this.LeftTree.getCheckedNodes();
+        const newNodes = this.leftTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.props.clone;
@@ -41,7 +41,7 @@ export default class GroupUserTree extends React.Component {
 
     mergeUnheckedNodes() {
         const { checkedNodes } = this.state;
-        const newNodes = this.RightTree.getUncheckedNodes();
+        const newNodes = this.rightTree.getUncheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.clone;
@@ -65,7 +65,7 @@ export default class GroupUserTree extends React.Component {
                         data={this.state.data}
                         ref={elem => {
                             if (elem) {
-                                this.LeftTree = elem;
+                                this.leftTree = elem;
                             }
                         }}
                     />
@@ -79,7 +79,7 @@ export default class GroupUserTree extends React.Component {
                         data={checkedNodes}
                         ref={elem => {
                             if (elem) {
-                                this.RightTree = elem;
+                                this.rightTree = elem;
                             }
                         }}
                     />

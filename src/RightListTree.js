@@ -199,7 +199,6 @@ export default class BlockListTree extends React.Component {
                     }}
                     selectable
                     shouldSelectNode={(rootNode) => {
-                        console.log('selected node', rootNode);
                         const more = rootNode.hasChildren();
 
                         const recursiveUpdate = (node) => {
