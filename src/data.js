@@ -1,4 +1,4 @@
-const data = {
+export const data = {
     'id': 'root',
     'props': {
         'label': 'All Users / Groups'
@@ -9,26 +9,7 @@ const data = {
             'props': {
                 'label': 'Legal'
             },
-            'children': [
-                {
-                    'id': 'legal.1',
-                    'props': {
-                        'label': 'Legal: User_1'
-                    }
-                },
-                {
-                    'id': 'legal.2',
-                    'props': {
-                        'label': 'Legal: User_2'
-                    }
-                },
-                {
-                    'id': 'legal.3',
-                    'props': {
-                        'label': 'Legal: User_3'
-                    }
-                }
-            ]
+            'loadOnDemand': 'true'
         },
         {
             'id': 'finance',
@@ -93,4 +74,23 @@ const data = {
     ]
 };
 
-export default data;
+export const asyncData = [
+    {
+        'id': 'legal.1',
+        'props': {
+            'label': 'Legal: User_1'
+        }
+    },
+    {
+        'id': 'legal.2',
+        'props': {
+            'label': 'Legal: User_2'
+        }
+    },
+    {
+        'id': 'legal.3',
+        'props': {
+            'label': 'Legal: User_3'
+        }
+    }
+];

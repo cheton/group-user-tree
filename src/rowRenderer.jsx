@@ -2,12 +2,12 @@ import classNames from 'classnames';
 import React from 'react';
 
 const rowRenderer = (node, treeOptions) => {
-    const { id, loadOnDemand = false, state, props = {} } = node;
+    const { id, state, loadOnDemand = false, props = {} } = node;
     const { depth, open } = state;
-    const { checked = false } = props;
+    const { checked = false, loading = false } = props;
     const more = node.hasChildren();
-    let style;
 
+    let style;
     if (checked === 'partial') {
         style = 'icon-checkbox-checked';
     } else {
@@ -36,6 +36,7 @@ const rowRenderer = (node, treeOptions) => {
                     <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
                 }
                 <i className={style} aria-hidden="true" />
+                {loadOnDemand && loading && <span className="glyphicon glyphicon-refresh" />}
                 <span className="infinite-tree-title">{props.label}</span>
             </div>
         </div>

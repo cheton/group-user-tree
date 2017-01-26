@@ -2,6 +2,7 @@ import React from 'react';
 import InfiniteTree from 'react-infinite-tree';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import './index.styl';
+import { asyncData } from './data';
 
 export default class BlockListTree extends React.Component {
     constructor (props) {
@@ -75,9 +76,29 @@ export default class BlockListTree extends React.Component {
                             this.tree = c.tree;
                         }
                     }}
-                    autoOpen={!this.state.searchMode}
+                    autoOpen={true}
                     rowRenderer={this.props.rowRenderer}
                     selectable
+                    loadNodes={(parentNode, done) => {
+                        parentNode.props.loading = true;
+                        this.tree.updateNode(parentNode);
+                        const loadChildren = new Promise((resolve, reject) => {
+                            // Some async data loading here, should return array of nodes information
+                            setTimeout(() => {
+                                const nodes = asyncData;
+                                resolve(nodes);
+                            }, 2000);
+                        });
+
+                        loadChildren.then((nodes) => {
+                            parentNode.props.loading = false;
+                            done(null, nodes);
+                        })
+                        .catch((error) => {
+                            parentNode.props.loading = false;
+                            console.log('Error: ', error);
+                        });
+                    }}
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
 

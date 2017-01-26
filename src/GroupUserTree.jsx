@@ -1,6 +1,6 @@
 import React from 'react';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
-import data from './data';
+import { data } from './data';
 import LeftListTree from './LeftListTree';
 import RightListTree from './RightListTree';
 import rowRenderer from './rowRenderer';
