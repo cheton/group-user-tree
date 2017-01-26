@@ -1,4 +1,5 @@
 import React from 'react';
+import classNames from 'classnames';
 import InfiniteTree from 'react-infinite-tree';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import './index.styl';
@@ -7,12 +8,8 @@ export default class BlockListTree extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = {
-            searchMode: false
-        };
-
-        this.handleSearch = this.handleSearch.bind(this);
-        this.getUncheckedNodes = this.getUncheckedNodes.bind(this);
+        this.handleFilter = this.handleFilter.bind(this);
+        this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
 
     componentDidMount () {
@@ -20,52 +17,51 @@ export default class BlockListTree extends React.Component {
     }
 
     componentWillReceiveProps (nextProps) {
-        if (this.state.searchMode) {
-            this.handleSearch();
-            return;
-        }
+        // if (this.state.searchMode) {
+        //     return;
+        // }
 
         this.tree.loadData(nextProps.data);
     }
 
-    handleSearch (event) {
-        event && event.preventDefault();
-        const bindedSearch = this.props.handleSearch.bind(this);
-        bindedSearch(event);
+    handleFilter (event) {
+        const searchKeyword = event.target.value.toLowerCase();
+
+        this.tree.nodes.forEach((node) => {
+            node.props = node.props || {};
+
+            if (node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '' && node.id !== 'selectedRoot') {
+                node.props.isFiltered = false;
+                return;
+            }
+
+            while (node && node.parent) {
+                node.props.isFiltered = true;
+                node = node.parent;
+            }
+        });
+        this.tree.loadData(this.props.data);
     }
 
-    getUncheckedNodes () {
+    getCheckedNodes () {
         const checkedNodes = this.tree.nodes.filter((node) => {
-            if (node.props.checked && node.props.checked !== false) {
-                this.tree.updateNode(node);
-
+            if (node.props.checked === true && !node.hasChildren()) {
                 return true;
             }
             return false;
-        })
-        .map((node) => {
-            return { id: node.id, clone: node.props.clone, clonedId: node.props.clonedId };
         });
-
         return checkedNodes;
     }
 
     render () {
         return (
             <div>
-                <form onSubmit={this.handleSearch}>
-                    <input
-                        type="text"
-                        name="keyWord"
-                        style={{ width: '100%' }}
-                        placeholder="Search...(press enter to search)"
-                        ref={(c) => {
-                            if (c) {
-                                this.form = c.form;
-                            }
-                        }}
-                    />
-                </form>
+                <input
+                    type="text"
+                    onChange={this.handleFilter}
+                    style={{ width: '100%' }}
+                    placeholder="Search..."
+                />
                 <InfiniteTree
                     ref={(c) => {
                         if (c) {
@@ -73,7 +69,53 @@ export default class BlockListTree extends React.Component {
                         }
                     }}
                     autoOpen
-                    rowRenderer={this.props.rowRenderer}
+                    rowRenderer={(node, treeOptions) => {
+                        const { id, loadOnDemand = false, state, props = {} } = node;
+                        const { depth, open } = state;
+                        const { checked = false, isFiltered = true } = props;
+                        const more = node.hasChildren();
+                        let style;
+
+                        if (!isFiltered) {
+                            return (<div
+                                data-id={id}
+                                style={{ display: 'none' }}
+                            />);
+                        }
+
+                        if (checked === 'partial') {
+                            style = 'icon-checkbox-checked';
+                        } else {
+                            style = checked ? 'icon-checkmark2' : 'icon-checkbox-unchecked';
+                        }
+
+                        return (
+                            <div
+                                className={classNames(
+                                  'infinite-tree-item',
+                                  { 'infinite-tree-selected': checked }
+                                )}
+                                data-id={id}
+                            >
+                                <div
+                                    className="infinite-tree-node"
+                                    style={{ marginLeft: depth * 18 }}
+                                >
+                                    {!more && loadOnDemand &&
+                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
+                                    }
+                                    {more && open &&
+                                        <a className={classNames(treeOptions.togglerClass)}>▼</a>
+                                    }
+                                    {more && !open &&
+                                        <a className={classNames(treeOptions.togglerClass, 'infinite-tree-closed')}>►</a>
+                                    }
+                                    <i className={style} aria-hidden="true" />
+                                    <span className="infinite-tree-title">{props.label}</span>
+                                </div>
+                            </div>
+                        );
+                    }}
                     selectable
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
@@ -158,10 +200,8 @@ export default class BlockListTree extends React.Component {
 }
 
 BlockListTree.propTypes = {
-    handleSearch: React.PropTypes.func,
-    rowRenderer: React.PropTypes.func,
-    isFiltered: React.PropTypes.bool,
     data: React.PropTypes.obj,
+    isFiltered: React.PropTypes.bool,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.bool

@@ -106,12 +106,9 @@ export default class GroupUserTree extends React.Component {
 
     mergeUnheckedNodes() {
         const { checkedNodes } = this.state;
-        const newNodes = this.rightTree.getUncheckedNodes();
+        const newNodes = this.rightTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
-            const isClone = newNode.clone;
-            newNode.id = isClone ? newNode.clonedId : newNode.id;
-
             const index = checkedNodes.children.findIndex((node) => {
                 return node.id === newNode.id;
             });
