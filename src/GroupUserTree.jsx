@@ -28,15 +28,17 @@ export default class GroupUserTree extends React.Component {
     handleSearch () {
         const searchKeyword = this.form.keyWord.value.toLowerCase();
         const { data } = this.props;
-
-        this.tree.loadData(data);
+        const tree = this.tree;
+        tree.loadData(data);
         if (searchKeyword === '') {
+            tree.removeNode(tree.getNodeById('search'));
+            tree.openNode(tree.getNodeById('root'));
             return;
         }
 
         this.setState({ searchMode: true });
 
-        let selectedNodes = this.tree.nodes.filter((node) => {
+        let selectedNodes = tree.nodes.filter((node) => {
             if (node.id === 'selectedRoot') {
                 return false;
             }
@@ -84,7 +86,9 @@ export default class GroupUserTree extends React.Component {
             children: selectedNodes
         };
 
-        this.tree.loadData(searchNode);
+        tree.appendChildNode(searchNode, tree.getRootNode());
+        tree.openNode(tree.getNodeById('search'));
+        tree.closeNode(tree.getNodeById('root'));
     }
 
     mergeCheckedNodes() {
@@ -123,7 +127,7 @@ export default class GroupUserTree extends React.Component {
         return (
             <div className="container">
                 <div className="leftTree col-sm-4">
-                    <div>Availeble Users / Groups</div>
+                    <div>Available Users / Groups</div>
                     <LeftListTree
                         data={this.state.data}
                         ref={elem => {

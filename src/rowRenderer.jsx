@@ -7,6 +7,13 @@ const rowRenderer = (node, treeOptions) => {
     const { checked = false, loading = false } = props;
     const more = node.hasChildren();
 
+    if (node.id === 'availableRoot') {
+        return (<div
+            data-id={id}
+            style={{ display: 'none' }}
+        />);
+    }
+
     let style;
     if (checked === 'partial') {
         style = 'icon-checkbox-checked';
@@ -44,6 +51,7 @@ const rowRenderer = (node, treeOptions) => {
 };
 
 rowRenderer.propTypes = {
+    loading: React.PropTypes.bool,
     checked: React.PropTypes.bool,
     label: React.PropTypes.string
 };
