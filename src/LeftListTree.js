@@ -72,7 +72,7 @@ export default class BlockListTree extends React.Component {
         })
         .catch((error) => {
             parentNode.props.loading = false;
-            console.log('Error: ', error);
+            // console.log('Error: ', error);
         });
     }
 
