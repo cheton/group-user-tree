@@ -12,6 +12,7 @@ export default class BlockListTree extends React.Component {
             searchMode: false
         };
 
+        this.loadNodes = this.loadNodes.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
@@ -54,6 +55,27 @@ export default class BlockListTree extends React.Component {
         return checkedNodes;
     }
 
+    loadNodes(parentNode, done) {
+        parentNode.props.loading = true;
+        this.tree.updateNode(parentNode);
+        const loadChildren = new Promise((resolve, reject) => {
+            // Some async data loading here, should return array of nodes information
+            setTimeout(() => {
+                const nodes = asyncData;
+                resolve(nodes);
+            }, 2000);
+        });
+
+        loadChildren.then((nodes) => {
+            parentNode.props.loading = false;
+            done(null, nodes);
+        })
+        .catch((error) => {
+            parentNode.props.loading = false;
+            console.log('Error: ', error);
+        });
+    }
+
     render () {
         return (
             <div>
@@ -79,26 +101,7 @@ export default class BlockListTree extends React.Component {
                     autoOpen={true}
                     rowRenderer={this.props.rowRenderer}
                     selectable
-                    loadNodes={(parentNode, done) => {
-                        parentNode.props.loading = true;
-                        this.tree.updateNode(parentNode);
-                        const loadChildren = new Promise((resolve, reject) => {
-                            // Some async data loading here, should return array of nodes information
-                            setTimeout(() => {
-                                const nodes = asyncData;
-                                resolve(nodes);
-                            }, 2000);
-                        });
-
-                        loadChildren.then((nodes) => {
-                            parentNode.props.loading = false;
-                            done(null, nodes);
-                        })
-                        .catch((error) => {
-                            parentNode.props.loading = false;
-                            console.log('Error: ', error);
-                        });
-                    }}
+                    loadNodes={this.loadNodes}
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
 
