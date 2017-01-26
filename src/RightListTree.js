@@ -200,7 +200,7 @@ export default class BlockListTree extends React.Component {
 }
 
 BlockListTree.propTypes = {
-    data: React.PropTypes.obj,
+    data: React.PropTypes.object,
     isFiltered: React.PropTypes.bool,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,

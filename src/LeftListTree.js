@@ -188,7 +188,7 @@ BlockListTree.propTypes = {
     isFiltered: React.PropTypes.bool,
     rowRenderer: React.PropTypes.func,
     handleSearch: React.PropTypes.func,
-    data: React.PropTypes.obj,
+    data: React.PropTypes.object,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.bool

@@ -12,7 +12,7 @@ export default class GroupUserTree extends React.Component {
 
         this.state = {
             data,
-            checkedNodes: {
+            selectedNodes: {
                 id: 'selectedRoot',
                 props: {
                     label: 'Selected Users / Groups'
@@ -36,7 +36,7 @@ export default class GroupUserTree extends React.Component {
 
         this.setState({ searchMode: true });
 
-        let checkedNodes = this.tree.nodes.filter((node) => {
+        let selectedNodes = this.tree.nodes.filter((node) => {
             if (node.id === 'selectedRoot') {
                 return false;
             }
@@ -71,8 +71,8 @@ export default class GroupUserTree extends React.Component {
             return nodeToSend;
         });
 
-        if (checkedNodes.length === 0) {
-            checkedNodes = [{
+        if (selectedNodes.length === 0) {
+            selectedNodes = [{
                 id: 'noResult',
                 props: { label: 'No result' }
             }];
@@ -81,45 +81,45 @@ export default class GroupUserTree extends React.Component {
         const searchNode = {
             id: 'search',
             props: { label: `Search: ${searchKeyword}` },
-            children: checkedNodes
+            children: selectedNodes
         };
 
         this.tree.loadData(searchNode);
     }
 
     mergeCheckedNodes() {
-        const { checkedNodes } = this.state;
+        const { selectedNodes } = this.state;
         const newNodes = this.leftTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.props.clone;
 
             newNode.id = isClone ? newNode.props.clonedId : newNode.id;
-            const isNew = checkedNodes.children.find((node) => {
+            const isNew = selectedNodes.children.find((node) => {
                 return node.id === newNode.id;
             });
 
-            !isNew && checkedNodes.children.push(newNode);
+            !isNew && selectedNodes.children.push(newNode);
         });
-        this.setState({ checkedNodes });
+        this.setState({ selectedNodes });
     }
 
     mergeUnheckedNodes() {
-        const { checkedNodes } = this.state;
+        const { selectedNodes } = this.state;
         const newNodes = this.rightTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
-            const index = checkedNodes.children.findIndex((node) => {
+            const index = selectedNodes.children.findIndex((node) => {
                 return node.id === newNode.id;
             });
-            (index > -1) && checkedNodes.children.splice(index, 1);
+            (index > -1) && selectedNodes.children.splice(index, 1);
         });
 
-        this.setState({ checkedNodes });
+        this.setState({ selectedNodes });
     }
 
     render () {
-        const { checkedNodes } = this.state;
+        const { selectedNodes } = this.state;
         return (
             <div className="container">
                 <div className="leftTree col-sm-4">
@@ -142,8 +142,7 @@ export default class GroupUserTree extends React.Component {
                 <div className="rightTree col-sm-4">
                     <div className="tree-title">Selected Users / Groups</div>
                     <RightListTree
-                        data={checkedNodes}
-                        handleSearch={this.handleSearch}
+                        data={selectedNodes}
                         rowRenderer={rowRenderer}
                         ref={elem => {
                             if (elem) {
@@ -158,7 +157,7 @@ export default class GroupUserTree extends React.Component {
 }
 
 GroupUserTree.propTypes = {
-    data: React.PropTypes.obj,
+    data: React.PropTypes.object,
     isFiltered: React.PropTypes.bool,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
