@@ -37,7 +37,7 @@ export default class BlockListTree extends React.Component {
         this.setState({ loadingSearch: true });
 
         const loadSearchTree = new Promise((resolve, reject) => {
-            // Some async data loading here, should return tree
+            // Some async data loading here, should return tree object of array of nodes
             setTimeout(() => {
                 const result = searchData;
                 resolve(result);
