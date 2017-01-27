@@ -94,3 +94,38 @@ export const asyncData = [
         }
     }
 ];
+
+export const searchData = {
+    'id': 'marketing',
+    'props': {
+        'label': 'Marketing'
+    },
+    'children': [
+        {
+            'id': 'digital-marketing',
+            'props': {
+                'label': 'Digital Marketing'
+            },
+            'children': [
+                {
+                    'id': 'digital-marketing.1',
+                    'props': {
+                        'label': 'Digital Marketing: User_1'
+                    }
+                },
+                {
+                    'id': 'digital-marketing.2',
+                    'props': {
+                        'label': 'Digital Marketing: User_2'
+                    }
+                },
+                {
+                    'id': 'digital-marketing.3',
+                    'props': {
+                        'label': 'Digital Marketing: User_3'
+                    }
+                }
+            ]
+        }
+    ]
+};

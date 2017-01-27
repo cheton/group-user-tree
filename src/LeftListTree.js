@@ -2,14 +2,14 @@ import React from 'react';
 import InfiniteTree from 'react-infinite-tree';
 import 'react-infinite-tree/dist/react-infinite-tree.css';
 import './index.styl';
-import { asyncData } from './data';
+import { asyncData, searchData } from './data';
 
 export default class BlockListTree extends React.Component {
     constructor (props) {
         super(props);
 
         this.state = {
-            searchMode: false
+            loadingSearch: false
         };
 
         this.loadNodes = this.loadNodes.bind(this);
@@ -22,9 +22,29 @@ export default class BlockListTree extends React.Component {
     }
 
     handleSearch (event) {
-        event.preventDefault();
         const bindedSearch = this.props.handleSearch.bind(this);
-        bindedSearch(event);
+        const keyWord = this.form.keyWord.value.toLowerCase();
+
+        event && event.preventDefault();
+
+        this.setState({ loadingSearch: true });
+
+        const loadSearchTree = new Promise((resolve, reject) => {
+            // Some async data loading here, should return tree
+            setTimeout(() => {
+                const result = searchData;
+                resolve(result);
+            }, 2000);
+        });
+
+        loadSearchTree.then((result) => {
+            bindedSearch(result, keyWord);
+            this.setState({ loadingSearch: false });
+        })
+        .catch((error) => {
+            this.setState({ loadingSearch: false });
+            // console.log('Error: ', error);
+        });
     }
 
     getCheckedNodes () {
@@ -83,7 +103,7 @@ export default class BlockListTree extends React.Component {
                     <input
                         type="text"
                         name="keyWord"
-                        style={{ width: '100%' }}
+                        style={{ width: '90%' }}
                         placeholder="Search...(press enter to search)"
                         ref={(c) => {
                             if (c) {
@@ -91,6 +111,7 @@ export default class BlockListTree extends React.Component {
                             }
                         }}
                     />
+                    {this.state.loadingSearch && <span className="glyphicon glyphicon-refresh" />}
                 </form>
                 <InfiniteTree
                     ref={(c) => {

@@ -25,10 +25,10 @@ export default class GroupUserTree extends React.Component {
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
 
-    handleSearch () {
-        const searchKeyword = this.form.keyWord.value.toLowerCase();
+    handleSearch (searchData, searchKeyword) {
         const { data } = this.props;
         const tree = this.tree;
+
         tree.loadData(data);
         if (searchKeyword === '') {
             tree.removeNode(tree.getNodeById('search'));
@@ -36,54 +36,27 @@ export default class GroupUserTree extends React.Component {
             return;
         }
 
-        this.setState({ searchMode: true });
+        const recursiveUpdate = (node) => {
+            const more = node.children && node.children.length > 0;
 
-        let selectedNodes = tree.nodes.filter((node) => {
-            if (node.id === 'selectedRoot') {
-                return false;
-            }
-            node.props = node.props || {};
-            return !(node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '');
-        })
-        .map((node) => {
-            const nodeToSend = {
-                id: `${node.id + Math.random()}`,
-                props: {
-                    label: node.props.label,
-                    checked: node.props.checked,
-                    clone: true,
-                    clonedId: node.id
-                }
-            };
+            node.props = { ...node.props };
+            node.props.clone = true;
+            node.props.clonedId = node.id;
+            node.id = `${node.id + Math.random()}`;
 
-            if (node.hasChildren()) {
-                nodeToSend.children = [...node.children].map((child) => {
-                    return {
-                        id: `${child.id + Math.random()}`,
-                        props: {
-                            label: child.props.label,
-                            checked: child.props.checked,
-                            clone: true,
-                            clonedId: child.id
-                        }
-                    };
+            if (more) {
+                node.children.forEach(child => {
+                    recursiveUpdate(child);
                 });
             }
+        };
 
-            return nodeToSend;
-        });
-
-        if (selectedNodes.length === 0) {
-            selectedNodes = [{
-                id: 'noResult',
-                props: { label: 'No result' }
-            }];
-        }
+        recursiveUpdate(searchData);
 
         const searchNode = {
             id: 'search',
             props: { label: `Search: ${searchKeyword}` },
-            children: selectedNodes
+            children: [searchData]
         };
 
         tree.appendChildNode(searchNode, tree.getRootNode());
