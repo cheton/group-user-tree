@@ -15,6 +15,7 @@ export default class BlockListTree extends React.Component {
         this.loadNodes = this.loadNodes.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
+        this.appendSearchNode = this.appendSearchNode.bind(this);
     }
 
     componentDidMount () {
@@ -22,10 +23,16 @@ export default class BlockListTree extends React.Component {
     }
 
     handleSearch (event) {
-        const bindedSearch = this.props.handleSearch.bind(this);
-        const keyWord = this.form.keyWord.value.toLowerCase();
+        const searchKeyword = this.form.keyWord.value.toLowerCase();
+        const tree = this.tree;
 
         event && event.preventDefault();
+
+        if (searchKeyword === '') {
+            tree.removeNode(tree.getNodeById('search'));
+            tree.openNode(tree.getNodeById('root'));
+            return;
+        }
 
         this.setState({ loadingSearch: true });
 
@@ -38,13 +45,46 @@ export default class BlockListTree extends React.Component {
         });
 
         loadSearchTree.then((result) => {
-            bindedSearch(result, keyWord);
+            this.appendSearchNode(result, searchKeyword);
             this.setState({ loadingSearch: false });
         })
         .catch((error) => {
             this.setState({ loadingSearch: false });
             // console.log('Error: ', error);
         });
+    }
+
+    appendSearchNode (searchData, searchKeyword) {
+        const { data } = this.props;
+        const tree = this.tree;
+
+        tree.loadData(data);
+
+        const recursiveUpdate = (node) => {
+            const more = node.children && node.children.length > 0;
+
+            node.props.clone = true;
+            node.props.clonedId = node.id;
+            node.id = `${node.id + Math.random()}`;
+
+            if (more) {
+                node.children.forEach(child => {
+                    recursiveUpdate(child);
+                });
+            }
+        };
+
+        recursiveUpdate(searchData);
+
+        const searchNode = {
+            id: 'search',
+            props: { label: `Search: ${searchKeyword}` },
+            children: [searchData]
+        };
+
+        tree.appendChildNode(searchNode, tree.getRootNode());
+        tree.openNode(tree.getNodeById('search'));
+        tree.closeNode(tree.getNodeById('root'));
     }
 
     getCheckedNodes () {
@@ -99,17 +139,18 @@ export default class BlockListTree extends React.Component {
     render () {
         return (
             <div>
-                <form onSubmit={this.handleSearch}>
+                <form
+                    onSubmit={this.handleSearch}
+                    ref={(c) => {
+                        this.form = c;
+                    }}
+                >
                     <input
                         type="text"
                         name="keyWord"
                         style={{ width: '90%' }}
                         placeholder="Search...(press enter to search)"
-                        ref={(c) => {
-                            if (c) {
-                                this.form = c.form;
-                            }
-                        }}
+
                     />
                     {this.state.loadingSearch && <span className="glyphicon glyphicon-refresh" />}
                 </form>

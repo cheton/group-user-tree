@@ -25,45 +25,6 @@ export default class GroupUserTree extends React.Component {
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
 
-    handleSearch (searchData, searchKeyword) {
-        const { data } = this.props;
-        const tree = this.tree;
-
-        tree.loadData(data);
-        if (searchKeyword === '') {
-            tree.removeNode(tree.getNodeById('search'));
-            tree.openNode(tree.getNodeById('root'));
-            return;
-        }
-
-        const recursiveUpdate = (node) => {
-            const more = node.children && node.children.length > 0;
-
-            node.props = { ...node.props };
-            node.props.clone = true;
-            node.props.clonedId = node.id;
-            node.id = `${node.id + Math.random()}`;
-
-            if (more) {
-                node.children.forEach(child => {
-                    recursiveUpdate(child);
-                });
-            }
-        };
-
-        recursiveUpdate(searchData);
-
-        const searchNode = {
-            id: 'search',
-            props: { label: `Search: ${searchKeyword}` },
-            children: [searchData]
-        };
-
-        tree.appendChildNode(searchNode, tree.getRootNode());
-        tree.openNode(tree.getNodeById('search'));
-        tree.closeNode(tree.getNodeById('root'));
-    }
-
     mergeCheckedNodes() {
         const { selectedNodes } = this.state;
         const newNodes = this.leftTree.getCheckedNodes();
@@ -108,7 +69,6 @@ export default class GroupUserTree extends React.Component {
                                 this.leftTree = elem;
                             }
                         }}
-                        handleSearch={this.handleSearch}
                         rowRenderer={rowRenderer}
                     />
                 </div>
@@ -120,7 +80,6 @@ export default class GroupUserTree extends React.Component {
                     <div className="tree-title">Selected Users / Groups</div>
                     <RightListTree
                         data={selectedNodes}
-                        rowRenderer={rowRenderer}
                         ref={elem => {
                             if (elem) {
                                 this.rightTree = elem;

@@ -17,10 +17,6 @@ export default class BlockListTree extends React.Component {
     }
 
     componentWillReceiveProps (nextProps) {
-        // if (this.state.searchMode) {
-        //     return;
-        // }
-
         this.tree.loadData(nextProps.data);
     }
 
