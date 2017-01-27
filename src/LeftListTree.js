@@ -60,6 +60,10 @@ export default class BlockListTree extends React.Component {
 
         tree.loadData(data);
 
+        if (!Array.isArray(searchData)) {
+            searchData = [searchData];
+        }
+
         const recursiveUpdate = (node) => {
             const more = node.children && node.children.length > 0;
 
@@ -74,12 +78,14 @@ export default class BlockListTree extends React.Component {
             }
         };
 
-        recursiveUpdate(searchData);
+        searchData.forEach((node) => {
+            recursiveUpdate(node);
+        });
 
         const searchNode = {
             id: 'search',
             props: { label: `Search: ${searchKeyword}` },
-            children: [searchData]
+            children: [...searchData]
         };
 
         tree.appendChildNode(searchNode, tree.getRootNode());
