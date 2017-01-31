@@ -7,6 +7,11 @@ const rowRenderer = (node, treeOptions) => {
     const { checked = false, loading = false } = props;
     const more = node.hasChildren();
 
+    const drag = (ev) => {
+        console.log('hi');
+        ev.dataTransfer.setData('text', 'hi fuck there');
+    };
+
     if (node.id === 'availableRoot') {
         return (<div
             data-id={id}
@@ -28,6 +33,10 @@ const rowRenderer = (node, treeOptions) => {
               { 'infinite-tree-selected': checked }
             )}
             data-id={id}
+            id={id}
+            draggable={true}
+            onDragStart={drag}
+            onClick={() => console.log('say hi')}
         >
             <div
                 className="infinite-tree-node"

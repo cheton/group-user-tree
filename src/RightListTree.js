@@ -49,6 +49,11 @@ export default class BlockListTree extends React.Component {
         return checkedNodes;
     }
 
+    drag(ev) {
+        console.log('hi');
+        ev.dataTransfer.setData('text', 'hi there');
+    }
+
     render () {
         return (
             <div>
@@ -57,6 +62,8 @@ export default class BlockListTree extends React.Component {
                     onChange={this.handleFilter}
                     style={{ width: '100%' }}
                     placeholder="Search..."
+                    draggable={true}
+                    onDragStart={this.drag}
                 />
                 <InfiniteTree
                     ref={(c) => {
@@ -92,6 +99,8 @@ export default class BlockListTree extends React.Component {
                                   { 'infinite-tree-selected': checked }
                                 )}
                                 data-id={id}
+                                draggable={true}
+                                onDragStart={this.drag}
                             >
                                 <div
                                     className="infinite-tree-node"

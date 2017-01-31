@@ -18,16 +18,26 @@ export default class GroupUserTree extends React.Component {
                     label: 'Selected Users / Groups'
                 },
                 children: []
-            }
+            },
+            dragStarted: false,
+            draggingNode: {}
         };
 
+
+        this.mergeDropped = this.mergeDropped.bind(this);
         this.mergeCheckedNodes = this.mergeCheckedNodes.bind(this);
         this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
     }
 
-    mergeCheckedNodes() {
+    mergeDropped(node) {
+        this.setState({ dragStarted: true, draggingNode: node });
+        console.log('state parent', node);
+    }
+
+    mergeCheckedNodes(draggedNode) {
+      console.log('draggedNode', draggedNode);
         const { selectedNodes } = this.state;
-        const newNodes = this.leftTree.getCheckedNodes();
+        const newNodes = draggedNode || this.leftTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.props.clone;
@@ -41,6 +51,14 @@ export default class GroupUserTree extends React.Component {
         });
         this.setState({ selectedNodes });
     }
+
+Hi!
+I`ve got some questions:
+1) The last row, which is "Default Policy" has to be unddraggable and cannot be moved, right? Does user able to delete this row?
+ http://joxi.ru/DmBEYyEFaZvdrP
+2) Please, desctibe the behaviour of this buttons.
+http://joxi.ru/Y2LqaMquPJbDA6
+3) Should priority field of rows change after replacing them? What is priority in this case and does it connected somehow to position of row?
 
     mergeUnheckedNodes() {
         const { selectedNodes } = this.state;
@@ -70,6 +88,8 @@ export default class GroupUserTree extends React.Component {
                             }
                         }}
                         rowRenderer={rowRenderer}
+                        mergeDropped={this.mergeDropped}
+                        dragStarted={this.state.dragStarted}
                     />
                 </div>
                 <div className="controls col-sm-4">
@@ -80,6 +100,7 @@ export default class GroupUserTree extends React.Component {
                     <div className="tree-title">Selected Users / Groups</div>
                     <RightListTree
                         data={selectedNodes}
+                        dragStarted={this.state.dragStarted}
                         ref={elem => {
                             if (elem) {
                                 this.rightTree = elem;

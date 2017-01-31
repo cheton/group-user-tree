@@ -12,6 +12,22 @@ export default class BlockListTree extends React.Component {
             loadingSearch: false
         };
 
+        this.setDroppable = {
+            hoverClass: 'infinite-tree-drop-hover',
+            accept: (event, options) => {
+                console.log(this.props.dragStarted);
+                if (options.type === 'dragenter' && !this.props.dragStarted) {
+                    this.props.mergeDropped([options.node]);
+                }
+                console.log('accept', options);
+                const node = options.node;
+                return true;
+            },
+            drop: (event, options) => {
+                const data = event.dataTransfer.getData('text');
+            }
+        }
+
         this.loadNodes = this.loadNodes.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
@@ -169,6 +185,7 @@ export default class BlockListTree extends React.Component {
                     autoOpen={true}
                     rowRenderer={this.props.rowRenderer}
                     selectable
+                    droppable={this.setDroppable}
                     loadNodes={this.loadNodes}
                     shouldSelectNode={(rootNode) => {
                         const more = rootNode.hasChildren();
