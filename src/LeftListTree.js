@@ -277,6 +277,8 @@ export default class BlockListTree extends React.Component {
 BlockListTree.propTypes = {
     beginDrag: React.PropTypes.func,
     isFiltered: React.PropTypes.bool,
+    nodeOwner: React.PropTypes.string,
+    dragStarted: React.PropTypes.bool,
     rowRenderer: React.PropTypes.func,
     handleSearch: React.PropTypes.func,
     data: React.PropTypes.object,
