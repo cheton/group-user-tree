@@ -15,18 +15,23 @@ export default class BlockListTree extends React.Component {
         this.setDroppable = {
             hoverClass: 'infinite-tree-drop-hover',
             accept: (event, options) => {
-                console.log(this.props.dragStarted);
                 if (options.type === 'dragenter' && !this.props.dragStarted) {
-                    this.props.mergeDropped([options.node]);
+                    const node = options.node;
+
+                    const nodeToSend = {
+                        id: node.id,
+                        props: {
+                            label: node.props.label,
+                            clone: node.props.clone,
+                            clonedId: node.props.clonedId
+                        }
+                    };
+
+                    this.props.beginDrag([nodeToSend], 'left');
                 }
-                console.log('accept', options);
-                const node = options.node;
-                return true;
-            },
-            drop: (event, options) => {
-                const data = event.dataTransfer.getData('text');
+                return this.props.nodeOwner !== 'left';
             }
-        }
+        };
 
         this.loadNodes = this.loadNodes.bind(this);
         this.handleSearch = this.handleSearch.bind(this);
@@ -270,6 +275,7 @@ export default class BlockListTree extends React.Component {
 }
 
 BlockListTree.propTypes = {
+    beginDrag: React.PropTypes.func,
     isFiltered: React.PropTypes.bool,
     rowRenderer: React.PropTypes.func,
     handleSearch: React.PropTypes.func,

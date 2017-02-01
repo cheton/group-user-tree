@@ -20,24 +20,23 @@ export default class GroupUserTree extends React.Component {
                 children: []
             },
             dragStarted: false,
-            draggingNode: {}
+            draggingNode: {},
+            nodeOwner: ''
         };
 
-
-        this.mergeDropped = this.mergeDropped.bind(this);
+        this.dropNode = this.dropNode.bind(this);
+        this.beginDrag = this.beginDrag.bind(this);
         this.mergeCheckedNodes = this.mergeCheckedNodes.bind(this);
-        this.mergeUnheckedNodes = this.mergeUnheckedNodes.bind(this);
+        this.mergeUncheckedNodes = this.mergeUncheckedNodes.bind(this);
     }
 
-    mergeDropped(node) {
-        this.setState({ dragStarted: true, draggingNode: node });
-        console.log('state parent', node);
+    beginDrag(node, nodeOwner) {
+        this.setState({ dragStarted: true, draggingNode: node, nodeOwner });
     }
 
     mergeCheckedNodes(draggedNode) {
-      console.log('draggedNode', draggedNode);
         const { selectedNodes } = this.state;
-        const newNodes = draggedNode || this.leftTree.getCheckedNodes();
+        const newNodes = (Array.isArray(draggedNode) && draggedNode) || this.leftTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const isClone = newNode.props.clone;
@@ -52,9 +51,9 @@ export default class GroupUserTree extends React.Component {
         this.setState({ selectedNodes });
     }
 
-    mergeUnheckedNodes() {
+    mergeUncheckedNodes(draggedNode) {
         const { selectedNodes } = this.state;
-        const newNodes = this.rightTree.getCheckedNodes();
+        const newNodes = (Array.isArray(draggedNode) && draggedNode) || this.rightTree.getCheckedNodes();
 
         newNodes.forEach((newNode) => {
             const index = selectedNodes.children.findIndex((node) => {
@@ -66,11 +65,33 @@ export default class GroupUserTree extends React.Component {
         this.setState({ selectedNodes });
     }
 
+    allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    dropNode(target) {
+        const { draggingNode, nodeOwner } = this.state;
+
+        if (target === 'right' && nodeOwner === 'left') {
+            this.mergeCheckedNodes(draggingNode);
+            this.setState({ dragStarted: false, draggingNode: {}, nodeOwner: '' });
+        } else if (target === 'left' && nodeOwner === 'right') {
+            this.mergeUncheckedNodes(draggingNode);
+            this.setState({ dragStarted: false, draggingNode: {}, nodeOwner: '' });
+        }
+    }
+
     render () {
-        const { selectedNodes } = this.state;
+        const { selectedNodes, nodeOwner, dragStarted } = this.state;
         return (
             <div className="container">
-                <div className="leftTree col-sm-4">
+                <div
+                    className="leftTree col-sm-4"
+                    onDrop={() => {
+                        this.dropNode('left');
+                    }}
+                    onDragOver={this.allowDrop}
+                >
                     <div>Available Users / Groups</div>
                     <LeftListTree
                         data={this.state.data}
@@ -80,18 +101,28 @@ export default class GroupUserTree extends React.Component {
                             }
                         }}
                         rowRenderer={rowRenderer}
-                        mergeDropped={this.mergeDropped}
-                        dragStarted={this.state.dragStarted}
+                        beginDrag={this.beginDrag}
+                        dragStarted={dragStarted}
+                        nodeOwner={nodeOwner}
                     />
                 </div>
                 <div className="controls col-sm-4">
                     <button onClick={this.mergeCheckedNodes}>{'Add >>'}</button>
-                    <button onClick={this.mergeUnheckedNodes}>{'<< Remove'}</button>
+                    <button onClick={this.mergeUncheckedNodes}>{'<< Remove'}</button>
                 </div>
-                <div className="rightTree col-sm-4">
-                    <div className="tree-title">Selected Users / Groups</div>
+                <div
+                    className="rightTree col-sm-4"
+                    onDrop={() => {
+                        this.dropNode('right');
+                    }}
+                    onDragOver={this.allowDrop}
+                >
+                    <div className="tree-title">
+                      Selected Users / Groups
+                    </div>
                     <RightListTree
                         data={selectedNodes}
+                        beginDrag={this.beginDrag}
                         dragStarted={this.state.dragStarted}
                         ref={elem => {
                             if (elem) {

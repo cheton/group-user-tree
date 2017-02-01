@@ -8,6 +8,27 @@ export default class BlockListTree extends React.Component {
     constructor (props) {
         super(props);
 
+        this.setDroppable = {
+            hoverClass: 'infinite-tree-drop-hover',
+            accept: (event, options) => {
+                if (options.type === 'dragenter' && !this.props.dragStarted) {
+                    const node = options.node;
+
+                    const nodeToSend = {
+                        id: node.id,
+                        props: {
+                            label: node.props.label,
+                            clone: node.props.clone,
+                            clonedId: node.props.clonedId
+                        }
+                    };
+
+                    this.props.beginDrag([nodeToSend], 'right');
+                }
+                return this.props.nodeOwner !== 'right';
+            }
+        };
+
         this.handleFilter = this.handleFilter.bind(this);
         this.getCheckedNodes = this.getCheckedNodes.bind(this);
     }
@@ -49,11 +70,6 @@ export default class BlockListTree extends React.Component {
         return checkedNodes;
     }
 
-    drag(ev) {
-        console.log('hi');
-        ev.dataTransfer.setData('text', 'hi there');
-    }
-
     render () {
         return (
             <div>
@@ -62,8 +78,6 @@ export default class BlockListTree extends React.Component {
                     onChange={this.handleFilter}
                     style={{ width: '100%' }}
                     placeholder="Search..."
-                    draggable={true}
-                    onDragStart={this.drag}
                 />
                 <InfiniteTree
                     ref={(c) => {
@@ -72,6 +86,7 @@ export default class BlockListTree extends React.Component {
                         }
                     }}
                     autoOpen
+                    droppable={this.setDroppable}
                     rowRenderer={(node, treeOptions) => {
                         const { id, loadOnDemand = false, state, props = {} } = node;
                         const { depth, open } = state;
@@ -100,7 +115,6 @@ export default class BlockListTree extends React.Component {
                                 )}
                                 data-id={id}
                                 draggable={true}
-                                onDragStart={this.drag}
                             >
                                 <div
                                     className="infinite-tree-node"
@@ -207,6 +221,8 @@ export default class BlockListTree extends React.Component {
 BlockListTree.propTypes = {
     data: React.PropTypes.object,
     isFiltered: React.PropTypes.bool,
+    dragStarted: React.PropTypes.bool,
+    nodeOwner: React.PropTypes.string,
     checked: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.bool
