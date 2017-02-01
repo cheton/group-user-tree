@@ -52,14 +52,6 @@ export default class GroupUserTree extends React.Component {
         this.setState({ selectedNodes });
     }
 
-Hi!
-I`ve got some questions:
-1) The last row, which is "Default Policy" has to be unddraggable and cannot be moved, right? Does user able to delete this row?
- http://joxi.ru/DmBEYyEFaZvdrP
-2) Please, desctibe the behaviour of this buttons.
-http://joxi.ru/Y2LqaMquPJbDA6
-3) Should priority field of rows change after replacing them? What is priority in this case and does it connected somehow to position of row?
-
     mergeUnheckedNodes() {
         const { selectedNodes } = this.state;
         const newNodes = this.rightTree.getCheckedNodes();
