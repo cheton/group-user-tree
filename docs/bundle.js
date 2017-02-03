@@ -21550,19 +21550,27 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _class, _temp2;
-	
 	var _react = __webpack_require__(1);
 	
 	var _react2 = _interopRequireDefault(_react);
 	
-	var _reactAddonsShallowCompare = __webpack_require__(180);
+	__webpack_require__(180);
 	
-	var _reactAddonsShallowCompare2 = _interopRequireDefault(_reactAddonsShallowCompare);
+	var _data = __webpack_require__(184);
 	
-	var _index = __webpack_require__(182);
+	var _LeftListTree = __webpack_require__(185);
 	
-	var _index2 = _interopRequireDefault(_index);
+	var _LeftListTree2 = _interopRequireDefault(_LeftListTree);
+	
+	var _RightListTree = __webpack_require__(210);
+	
+	var _RightListTree2 = _interopRequireDefault(_RightListTree);
+	
+	var _rowRenderer = __webpack_require__(211);
+	
+	var _rowRenderer2 = _interopRequireDefault(_rowRenderer);
+	
+	__webpack_require__(208);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -21572,97 +21580,158 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var _default = (_temp2 = _class = function (_Component) {
-	    _inherits(_default, _Component);
+	var GroupUserTree = function (_React$Component) {
+	    _inherits(GroupUserTree, _React$Component);
 	
-	    function _default() {
-	        var _ref;
+	    function GroupUserTree(props) {
+	        _classCallCheck(this, GroupUserTree);
 	
-	        var _temp, _this, _ret;
+	        var _this = _possibleConstructorReturn(this, (GroupUserTree.__proto__ || Object.getPrototypeOf(GroupUserTree)).call(this, props));
 	
-	        _classCallCheck(this, _default);
+	        _this.state = {
+	            data: _data.data,
+	            selectedNodes: {
+	                id: 'selectedRoot',
+	                props: {
+	                    label: 'Selected Users / Groups'
+	                },
+	                children: []
+	            }
+	        };
 	
-	        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-	            args[_key] = arguments[_key];
-	        }
-	
-	        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = _default.__proto__ || Object.getPrototypeOf(_default)).call.apply(_ref, [this].concat(args))), _this), _this.state = {}, _this.actions = {}, _temp), _possibleConstructorReturn(_this, _ret);
+	        _this.mergeCheckedNodes = _this.mergeCheckedNodes.bind(_this);
+	        _this.mergeUnheckedNodes = _this.mergeUnheckedNodes.bind(_this);
+	        return _this;
 	    }
 	
-	    _createClass(_default, [{
-	        key: 'shouldComponentUpdate',
-	        value: function shouldComponentUpdate(nextProps, nextState) {
-	            return (0, _reactAddonsShallowCompare2.default)(this, nextProps, nextState);
+	    _createClass(GroupUserTree, [{
+	        key: 'mergeCheckedNodes',
+	        value: function mergeCheckedNodes() {
+	            var selectedNodes = this.state.selectedNodes;
+	
+	            var newNodes = this.leftTree.getCheckedNodes();
+	
+	            newNodes.forEach(function (newNode) {
+	                var isClone = newNode.props.clone;
+	
+	                newNode.id = isClone ? newNode.props.clonedId : newNode.id;
+	                var isNew = selectedNodes.children.find(function (node) {
+	                    return node.id === newNode.id;
+	                });
+	
+	                !isNew && selectedNodes.children.push(newNode);
+	            });
+	            this.setState({ selectedNodes: selectedNodes });
+	        }
+	    }, {
+	        key: 'mergeUnheckedNodes',
+	        value: function mergeUnheckedNodes() {
+	            var selectedNodes = this.state.selectedNodes;
+	
+	            var newNodes = this.rightTree.getCheckedNodes();
+	
+	            newNodes.forEach(function (newNode) {
+	                var index = selectedNodes.children.findIndex(function (node) {
+	                    return node.id === newNode.id;
+	                });
+	                index > -1 && selectedNodes.children.splice(index, 1);
+	            });
+	
+	            this.setState({ selectedNodes: selectedNodes });
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+	
+	            var selectedNodes = this.state.selectedNodes;
+	
 	            return _react2.default.createElement(
 	                'div',
-	                { className: _index2.default.componentTitle },
-	                'Hello'
+	                { className: 'container' },
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'leftTree col-sm-4' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        null,
+	                        'Available Users / Groups'
+	                    ),
+	                    _react2.default.createElement(_LeftListTree2.default, {
+	                        data: this.state.data,
+	                        ref: function ref(elem) {
+	                            if (elem) {
+	                                _this2.leftTree = elem;
+	                            }
+	                        },
+	                        rowRenderer: _rowRenderer2.default
+	                    })
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'controls col-sm-4' },
+	                    _react2.default.createElement(
+	                        'button',
+	                        { onClick: this.mergeCheckedNodes },
+	                        'Add >>'
+	                    ),
+	                    _react2.default.createElement(
+	                        'button',
+	                        { onClick: this.mergeUnheckedNodes },
+	                        '<< Remove'
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    'div',
+	                    { className: 'rightTree col-sm-4' },
+	                    _react2.default.createElement(
+	                        'div',
+	                        { className: 'tree-title' },
+	                        'Selected Users / Groups'
+	                    ),
+	                    _react2.default.createElement(_RightListTree2.default, {
+	                        data: selectedNodes,
+	                        ref: function ref(elem) {
+	                            if (elem) {
+	                                _this2.rightTree = elem;
+	                            }
+	                        }
+	                    })
+	                )
 	            );
 	        }
 	    }]);
 	
-	    return _default;
-	}(_react.Component), _class.propTypes = {}, _class.defaultProps = {}, _temp2);
+	    return GroupUserTree;
+	}(_react2.default.Component);
 	
-	exports.default = _default;
+	exports.default = GroupUserTree;
+	
+	
+	GroupUserTree.propTypes = {
+	    data: _react2.default.PropTypes.object,
+	    isFiltered: _react2.default.PropTypes.bool,
+	    checked: _react2.default.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.bool])
+	};
 
 /***/ },
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(181);
-
-/***/ },
-/* 181 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Copyright 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 */
-	
-	'use strict';
-	
-	var shallowEqual = __webpack_require__(123);
-	
-	/**
-	 * Does a shallow comparison for props and state.
-	 * See ReactComponentWithPureRenderMixin
-	 * See also https://facebook.github.io/react/docs/shallow-compare.html
-	 */
-	function shallowCompare(instance, nextProps, nextState) {
-	  return !shallowEqual(instance.props, nextProps) || !shallowEqual(instance.state, nextState);
-	}
-	
-	module.exports = shallowCompare;
-
-/***/ },
-/* 182 */
-/***/ function(module, exports, __webpack_require__) {
-
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(183);
+	var content = __webpack_require__(181);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(185)(content, {});
+	var update = __webpack_require__(183)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../node_modules/css-loader/index.js?-autoprefixer&camelCase&modules&importLoaders=1&localIdentName=[hash:base64:5]!./../node_modules/stylus-loader/index.js!./../node_modules/stylint-loader/index.js!./index.styl", function() {
-				var newContent = require("!!./../node_modules/css-loader/index.js?-autoprefixer&camelCase&modules&importLoaders=1&localIdentName=[hash:base64:5]!./../node_modules/stylus-loader/index.js!./../node_modules/stylint-loader/index.js!./index.styl");
+			module.hot.accept("!!./../../css-loader/index.js?-autoprefixer!./react-infinite-tree.css", function() {
+				var newContent = require("!!./../../css-loader/index.js?-autoprefixer!./react-infinite-tree.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -21672,24 +21741,21 @@
 	}
 
 /***/ },
-/* 183 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(184)();
+	exports = module.exports = __webpack_require__(182)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, "._1erEd {\n  font-size: 24px;\n}\n", ""]);
+	exports.push([module.id, ".infinite-tree-scroll {\n  overflow: auto;\n  max-height: 400px; /* Change the height to suit your needs. */\n}\n.infinite-tree-table {\n  width: 100%;\n}\n.infinite-tree-content {\n  outline: 0;\n  position: relative;\n}\n.infinite-tree-content .infinite-tree-selected.infinite-tree-item,\n.infinite-tree-content .infinite-tree-selected.infinite-tree-item:hover {\n  background: #deecfd;\n  border: 1px solid #06c;\n}\n.infinite-tree-content .infinite-tree-item {\n  border: 1px solid transparent;\n  cursor: default;\n}\n.infinite-tree-content .infinite-tree-item:hover {\n  background: #f2fdff;\n}\n.infinite-tree-content .infinite-tree-node {\n  position: relative;\n}\n.infinite-tree-content .infinite-tree-toggler {\n  color: #666;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.infinite-tree-content .infinite-tree-toggler:hover {\n  color: #333;\n  text-decoration: none;\n}\n.infinite-tree-content .infinite-tree-title {\n  cursor: pointer;\n  -webkit-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none;\n}\n.infinite-tree-no-data {\n  text-align: center;\n}\n\n", ""]);
 	
 	// exports
-	exports.locals = {
-		"component-title": "_1erEd",
-		"componentTitle": "_1erEd"
-	};
+
 
 /***/ },
-/* 184 */
+/* 182 */
 /***/ function(module, exports) {
 
 	/*
@@ -21745,7 +21811,7 @@
 
 
 /***/ },
-/* 185 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -21996,6 +22062,4132 @@
 	}
 
 
+/***/ },
+/* 184 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var data = exports.data = {
+	    'id': 'root',
+	    'props': {
+	        'label': 'All Users / Groups'
+	    },
+	    'children': [{
+	        'id': 'legal',
+	        'props': {
+	            'label': 'Legal'
+	        },
+	        'loadOnDemand': 'true'
+	    }, {
+	        'id': 'finance',
+	        'props': {
+	            'label': 'Finance'
+	        },
+	        'children': [{
+	            'id': 'finance.1',
+	            'props': {
+	                'label': 'Finance: User_1'
+	            }
+	        }, {
+	            'id': 'finance.2',
+	            'props': {
+	                'label': 'Finance: User_2'
+	            }
+	        }, {
+	            'id': 'finance.3',
+	            'props': {
+	                'label': 'Finance: User_3'
+	            }
+	        }]
+	    }, {
+	        'id': 'marketing',
+	        'props': {
+	            'label': 'Marketing'
+	        },
+	        'children': [{
+	            'id': 'digital-marketing',
+	            'props': {
+	                'label': 'Digital Marketing'
+	            },
+	            'children': [{
+	                'id': 'digital-marketing.1',
+	                'props': {
+	                    'label': 'Digital Marketing: User_1'
+	                }
+	            }, {
+	                'id': 'digital-marketing.2',
+	                'props': {
+	                    'label': 'Digital Marketing: User_2'
+	                }
+	            }, {
+	                'id': 'digital-marketing.3',
+	                'props': {
+	                    'label': 'Digital Marketing: User_3'
+	                }
+	            }]
+	        }]
+	    }]
+	};
+	
+	var asyncData = exports.asyncData = [{
+	    'id': 'legal.1',
+	    'props': {
+	        'label': 'Legal: User_1'
+	    }
+	}, {
+	    'id': 'legal.2',
+	    'props': {
+	        'label': 'Legal: User_2'
+	    }
+	}, {
+	    'id': 'legal.3',
+	    'props': {
+	        'label': 'Legal: User_3'
+	    }
+	}];
+	
+	var searchData = exports.searchData = {
+	    'id': 'marketing',
+	    'props': {
+	        'label': 'Marketing'
+	    },
+	    'children': [{
+	        'id': 'digital-marketing',
+	        'props': {
+	            'label': 'Digital Marketing'
+	        },
+	        'children': [{
+	            'id': 'digital-marketing.1',
+	            'props': {
+	                'label': 'Digital Marketing: User_1'
+	            }
+	        }, {
+	            'id': 'digital-marketing.2',
+	            'props': {
+	                'label': 'Digital Marketing: User_2'
+	            }
+	        }, {
+	            'id': 'digital-marketing.3',
+	            'props': {
+	                'label': 'Digital Marketing: User_3'
+	            }
+	        }]
+	    }]
+	};
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactInfiniteTree = __webpack_require__(186);
+	
+	var _reactInfiniteTree2 = _interopRequireDefault(_reactInfiniteTree);
+	
+	__webpack_require__(180);
+	
+	__webpack_require__(208);
+	
+	var _data = __webpack_require__(184);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var BlockListTree = function (_React$Component) {
+	    _inherits(BlockListTree, _React$Component);
+	
+	    function BlockListTree(props) {
+	        _classCallCheck(this, BlockListTree);
+	
+	        var _this = _possibleConstructorReturn(this, (BlockListTree.__proto__ || Object.getPrototypeOf(BlockListTree)).call(this, props));
+	
+	        _this.state = {
+	            loadingSearch: false
+	        };
+	
+	        _this.loadNodes = _this.loadNodes.bind(_this);
+	        _this.handleSearch = _this.handleSearch.bind(_this);
+	        _this.getCheckedNodes = _this.getCheckedNodes.bind(_this);
+	        _this.appendSearchNode = _this.appendSearchNode.bind(_this);
+	        return _this;
+	    }
+	
+	    _createClass(BlockListTree, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            this.tree.loadData(this.props.data);
+	        }
+	    }, {
+	        key: 'handleSearch',
+	        value: function handleSearch(event) {
+	            var _this2 = this;
+	
+	            var searchKeyword = this.form.keyWord.value.toLowerCase();
+	            var tree = this.tree;
+	
+	            event && event.preventDefault();
+	
+	            if (searchKeyword === '') {
+	                tree.removeNode(tree.getNodeById('search'));
+	                tree.openNode(tree.getNodeById('root'));
+	                return;
+	            }
+	
+	            this.setState({ loadingSearch: true });
+	
+	            var loadSearchTree = new Promise(function (resolve, reject) {
+	                // Some async data loading here, should return tree object of array of nodes
+	                setTimeout(function () {
+	                    var result = _data.searchData;
+	                    resolve(result);
+	                }, 2000);
+	            });
+	
+	            loadSearchTree.then(function (result) {
+	                _this2.appendSearchNode(result, searchKeyword);
+	                _this2.setState({ loadingSearch: false });
+	            }).catch(function (error) {
+	                _this2.setState({ loadingSearch: false });
+	                // console.log('Error: ', error);
+	            });
+	        }
+	    }, {
+	        key: 'appendSearchNode',
+	        value: function appendSearchNode(searchData, searchKeyword) {
+	            var data = this.props.data;
+	
+	            var tree = this.tree;
+	
+	            tree.loadData(data);
+	
+	            if (!Array.isArray(searchData)) {
+	                searchData = [searchData];
+	            }
+	
+	            var recursiveUpdate = function recursiveUpdate(node) {
+	                var more = node.children && node.children.length > 0;
+	
+	                node.props.clone = true;
+	                node.props.clonedId = node.id;
+	                node.id = '' + (node.id + Math.random());
+	
+	                if (more) {
+	                    node.children.forEach(function (child) {
+	                        recursiveUpdate(child);
+	                    });
+	                }
+	            };
+	
+	            searchData.forEach(function (node) {
+	                recursiveUpdate(node);
+	            });
+	
+	            var searchNode = {
+	                id: 'search',
+	                props: { label: 'Search: ' + searchKeyword },
+	                children: [].concat(_toConsumableArray(searchData))
+	            };
+	
+	            tree.appendChildNode(searchNode, tree.getRootNode());
+	            tree.openNode(tree.getNodeById('search'));
+	            tree.closeNode(tree.getNodeById('root'));
+	        }
+	    }, {
+	        key: 'getCheckedNodes',
+	        value: function getCheckedNodes() {
+	            var checkedNodes = this.tree.nodes.filter(function (node) {
+	                return node.props.checked === true;
+	            }).filter(function (node) {
+	                if (node.id === 'search' || node.id === 'noResult') {
+	                    return false;
+	                } else if (node.parent.props) {
+	                    return node.parent.props.checked !== true || node.parent.id === 'search';
+	                }
+	
+	                return true;
+	            }).map(function (node) {
+	                var nodeToSend = {
+	                    id: node.id,
+	                    props: {
+	                        label: node.props.label,
+	                        clone: node.props.clone,
+	                        clonedId: node.props.clonedId
+	                    }
+	                };
+	                return nodeToSend;
+	            });
+	
+	            return checkedNodes;
+	        }
+	    }, {
+	        key: 'loadNodes',
+	        value: function loadNodes(parentNode, done) {
+	            parentNode.props.loading = true;
+	            this.tree.updateNode(parentNode);
+	            var loadChildren = new Promise(function (resolve, reject) {
+	                // Some async data loading here, should return array of nodes information
+	                setTimeout(function () {
+	                    var nodes = _data.asyncData;
+	                    resolve(nodes);
+	                }, 2000);
+	            });
+	
+	            loadChildren.then(function (nodes) {
+	                parentNode.props.loading = false;
+	                done(null, nodes);
+	            }).catch(function (error) {
+	                parentNode.props.loading = false;
+	                // console.log('Error: ', error);
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this3 = this;
+	
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement(
+	                    'form',
+	                    {
+	                        onSubmit: this.handleSearch,
+	                        ref: function ref(c) {
+	                            _this3.form = c;
+	                        }
+	                    },
+	                    _react2.default.createElement('input', {
+	                        type: 'text',
+	                        name: 'keyWord',
+	                        style: { width: '90%' },
+	                        placeholder: 'Search...(press enter to search)'
+	
+	                    }),
+	                    this.state.loadingSearch && _react2.default.createElement('span', { className: 'glyphicon glyphicon-refresh' })
+	                ),
+	                _react2.default.createElement(_reactInfiniteTree2.default, {
+	                    ref: function ref(c) {
+	                        if (c) {
+	                            _this3.tree = c.tree;
+	                        }
+	                    },
+	                    autoOpen: true,
+	                    rowRenderer: this.props.rowRenderer,
+	                    selectable: true,
+	                    loadNodes: this.loadNodes,
+	                    shouldSelectNode: function shouldSelectNode(rootNode) {
+	                        var more = rootNode.hasChildren();
+	
+	                        var recursiveUpdate = function recursiveUpdate(node) {
+	                            var more = node.hasChildren();
+	
+	                            node.props.checked = rootNode.props.checked;
+	
+	                            if (more) {
+	                                node.children.forEach(function (child) {
+	                                    recursiveUpdate(child);
+	                                });
+	                            }
+	                        };
+	
+	                        if (rootNode.props.checked === 'partial' || rootNode.props.checked === false || rootNode.props.checked === undefined) {
+	                            rootNode.props.checked = true;
+	                        } else {
+	                            rootNode.props.checked = false;
+	                        }
+	
+	                        if (more) {
+	                            recursiveUpdate(rootNode);
+	                        }
+	
+	                        var changeParentChecked = function changeParentChecked(parent) {
+	                            var childrenLength = parent.children.length;
+	                            var checkedChildren = 0;
+	                            var checked = void 0;
+	
+	                            var isPartial = parent.children.find(function (child) {
+	                                return child.props.checked === 'partial';
+	                            });
+	
+	                            parent.children.forEach(function (child) {
+	                                if (child.props.checked) {
+	                                    checkedChildren++;
+	                                }
+	                            });
+	
+	                            parent.children.find(function (child) {
+	                                return child.props.checked === 'partial';
+	                            });
+	
+	                            if (checkedChildren > 0 && checkedChildren < childrenLength || isPartial) {
+	                                checked = 'partial';
+	                            } else if (checkedChildren === 0) {
+	                                checked = false;
+	                            } else {
+	                                checked = true;
+	                            }
+	
+	                            return checked;
+	                        };
+	
+	                        var recursiveParentChange = function recursiveParentChange(parent, child) {
+	                            parent.props.checked = changeParentChecked(parent);
+	                            if (parent.state.depth !== 0) {
+	                                recursiveParentChange(parent.parent, parent);
+	                            } else {
+	                                _this3.tree.updateNode(parent);
+	                            }
+	                        };
+	
+	                        if (rootNode.state.depth !== 0) {
+	                            recursiveParentChange(rootNode.parent, rootNode);
+	                        } else {
+	                            _this3.tree.updateNode(rootNode);
+	                        }
+	
+	                        return false;
+	                    }
+	                })
+	            );
+	        }
+	    }]);
+	
+	    return BlockListTree;
+	}(_react2.default.Component);
+	
+	exports.default = BlockListTree;
+	
+	
+	BlockListTree.propTypes = {
+	    isFiltered: _react2.default.PropTypes.bool,
+	    rowRenderer: _react2.default.PropTypes.func,
+	    handleSearch: _react2.default.PropTypes.func,
+	    data: _react2.default.PropTypes.object,
+	    checked: _react2.default.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.bool])
+	};
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _reactDom = __webpack_require__(32);
+	
+	var _reactDom2 = _interopRequireDefault(_reactDom);
+	
+	var _server = __webpack_require__(187);
+	
+	var _server2 = _interopRequireDefault(_server);
+	
+	var _infiniteTree = __webpack_require__(191);
+	
+	var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
+	
+	var _renderer = __webpack_require__(207);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var lcfirst = function lcfirst(str) {
+	    str += '';
+	    return str.charAt(0).toLowerCase() + str.substr(1);
+	};
+	
+	module.exports = function (_React$Component) {
+	    _inherits(_class2, _React$Component);
+	
+	    function _class2() {
+	        var _Object$getPrototypeO;
+	
+	        var _temp, _this, _ret;
+	
+	        _classCallCheck(this, _class2);
+	
+	        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	            args[_key] = arguments[_key];
+	        }
+	
+	        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(_class2)).call.apply(_Object$getPrototypeO, [this].concat(args))), _this), _this.tree = null, _this.eventHandlers = {
+	            onClick: null,
+	            onDoubleClick: null,
+	            onClusterWillChange: null,
+	            onClusterDidChange: null,
+	            onContentWillUpdate: null,
+	            onContentDidUpdate: null,
+	            onOpenNode: null,
+	            onCloseNode: null,
+	            onSelectNode: null
+	        }, _temp), _possibleConstructorReturn(_this, _ret);
+	    }
+	
+	    _createClass(_class2, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            var _this2 = this;
+	
+	            var _props = this.props;
+	            var children = _props.children;
+	            var className = _props.className;
+	            var style = _props.style;
+	
+	            var options = _objectWithoutProperties(_props, ['children', 'className', 'style']);
+	
+	            var el = _reactDom2.default.findDOMNode(this);
+	            options.el = el;
+	
+	            var rowRenderer = options.rowRenderer || _renderer.defaultRowRenderer;
+	            options.rowRenderer = function (node, opts) {
+	                var row = rowRenderer(node, opts);
+	                if ((typeof row === 'undefined' ? 'undefined' : _typeof(row)) === 'object') {
+	                    // Use ReactDOMServer.renderToString() to render React Component
+	                    row = _server2.default.renderToString(row);
+	                }
+	                return row;
+	            };
+	
+	            this.tree = new _infiniteTree2.default(options);
+	
+	            Object.keys(this.eventHandlers).forEach(function (key) {
+	                if (!_this2.props[key]) {
+	                    return;
+	                }
+	
+	                var eventName = lcfirst(key.substr(2)); // e.g. onContentWillUpdate -> contentWillUpdate
+	                _this2.eventHandlers[key] = _this2.props[key];
+	                _this2.tree.on(eventName, _this2.eventHandlers[key]);
+	            });
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            var _this3 = this;
+	
+	            Object.keys(this.eventHandlers).forEach(function (key) {
+	                if (!_this3.eventHandlers[key]) {
+	                    return;
+	                }
+	
+	                var eventName = lcfirst(key.substr(2)); // e.g. onUpdate -> update
+	                _this3.tree.removeListener(eventName, _this3.eventHandlers[key]);
+	                _this3.eventHandlers[key] = null;
+	            });
+	
+	            this.tree.destroy();
+	            this.tree = null;
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _props2 = this.props;
+	            var children = _props2.children;
+	            var className = _props2.className;
+	            var style = _props2.style;
+	
+	
+	            return _react2.default.createElement(
+	                'div',
+	                { className: className, style: style },
+	                children
+	            );
+	        }
+	    }]);
+	
+	    return _class2;
+	}(_react2.default.Component);
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	module.exports = __webpack_require__(188);
+
+
+/***/ },
+/* 188 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	var ReactDefaultInjection = __webpack_require__(38);
+	var ReactServerRendering = __webpack_require__(189);
+	var ReactVersion = __webpack_require__(171);
+	
+	ReactDefaultInjection.inject();
+	
+	var ReactDOMServer = {
+	  renderToString: ReactServerRendering.renderToString,
+	  renderToStaticMarkup: ReactServerRendering.renderToStaticMarkup,
+	  version: ReactVersion
+	};
+	
+	module.exports = ReactDOMServer;
+
+/***/ },
+/* 189 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	'use strict';
+	
+	var _prodInvariant = __webpack_require__(35);
+	
+	var React = __webpack_require__(2);
+	var ReactDOMContainerInfo = __webpack_require__(167);
+	var ReactDefaultBatchingStrategy = __webpack_require__(140);
+	var ReactInstrumentation = __webpack_require__(62);
+	var ReactMarkupChecksum = __webpack_require__(169);
+	var ReactReconciler = __webpack_require__(59);
+	var ReactServerBatchingStrategy = __webpack_require__(190);
+	var ReactServerRenderingTransaction = __webpack_require__(133);
+	var ReactUpdates = __webpack_require__(56);
+	
+	var emptyObject = __webpack_require__(20);
+	var instantiateReactComponent = __webpack_require__(118);
+	var invariant = __webpack_require__(8);
+	
+	var pendingTransactions = 0;
+	
+	/**
+	 * @param {ReactElement} element
+	 * @return {string} the HTML markup
+	 */
+	function renderToStringImpl(element, makeStaticMarkup) {
+	  var transaction;
+	  try {
+	    ReactUpdates.injection.injectBatchingStrategy(ReactServerBatchingStrategy);
+	
+	    transaction = ReactServerRenderingTransaction.getPooled(makeStaticMarkup);
+	
+	    pendingTransactions++;
+	
+	    return transaction.perform(function () {
+	      var componentInstance = instantiateReactComponent(element, true);
+	      var markup = ReactReconciler.mountComponent(componentInstance, transaction, null, ReactDOMContainerInfo(), emptyObject, 0 /* parentDebugID */
+	      );
+	      if (process.env.NODE_ENV !== 'production') {
+	        ReactInstrumentation.debugTool.onUnmountComponent(componentInstance._debugID);
+	      }
+	      if (!makeStaticMarkup) {
+	        markup = ReactMarkupChecksum.addChecksumToMarkup(markup);
+	      }
+	      return markup;
+	    }, null);
+	  } finally {
+	    pendingTransactions--;
+	    ReactServerRenderingTransaction.release(transaction);
+	    // Revert to the DOM batching strategy since these two renderers
+	    // currently share these stateful modules.
+	    if (!pendingTransactions) {
+	      ReactUpdates.injection.injectBatchingStrategy(ReactDefaultBatchingStrategy);
+	    }
+	  }
+	}
+	
+	/**
+	 * Render a ReactElement to its initial HTML. This should only be used on the
+	 * server.
+	 * See https://facebook.github.io/react/docs/top-level-api.html#reactdomserver.rendertostring
+	 */
+	function renderToString(element) {
+	  !React.isValidElement(element) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'renderToString(): You must pass a valid ReactElement.') : _prodInvariant('46') : void 0;
+	  return renderToStringImpl(element, false);
+	}
+	
+	/**
+	 * Similar to renderToString, except this doesn't create extra DOM attributes
+	 * such as data-react-id that React uses internally.
+	 * See https://facebook.github.io/react/docs/top-level-api.html#reactdomserver.rendertostaticmarkup
+	 */
+	function renderToStaticMarkup(element) {
+	  !React.isValidElement(element) ? process.env.NODE_ENV !== 'production' ? invariant(false, 'renderToStaticMarkup(): You must pass a valid ReactElement.') : _prodInvariant('47') : void 0;
+	  return renderToStringImpl(element, true);
+	}
+	
+	module.exports = {
+	  renderToString: renderToString,
+	  renderToStaticMarkup: renderToStaticMarkup
+	};
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 190 */
+/***/ function(module, exports) {
+
+	/**
+	 * Copyright 2014-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	var ReactServerBatchingStrategy = {
+	  isBatchingUpdates: false,
+	  batchedUpdates: function (callback) {
+	    // Don't do anything here. During the server rendering we don't want to
+	    // schedule any updates. We will simply ignore them.
+	  }
+	};
+	
+	module.exports = ReactServerBatchingStrategy;
+
+/***/ },
+/* 191 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _infiniteTree = __webpack_require__(192);
+	
+	var _infiniteTree2 = _interopRequireDefault(_infiniteTree);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	module.exports = _infiniteTree2['default'];
+
+/***/ },
+/* 192 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _events = __webpack_require__(193);
+	
+	var _events2 = _interopRequireDefault(_events);
+	
+	var _classnames = __webpack_require__(194);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _clusterize = __webpack_require__(195);
+	
+	var _clusterize2 = _interopRequireDefault(_clusterize);
+	
+	var _elementClass = __webpack_require__(196);
+	
+	var _elementClass2 = _interopRequireDefault(_elementClass);
+	
+	var _isDom = __webpack_require__(197);
+	
+	var _isDom2 = _interopRequireDefault(_isDom);
+	
+	var _flattree = __webpack_require__(198);
+	
+	var _lookupTable = __webpack_require__(202);
+	
+	var _lookupTable2 = _interopRequireDefault(_lookupTable);
+	
+	var _renderer = __webpack_require__(203);
+	
+	var _domEvents = __webpack_require__(206);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } /* eslint prefer-spread: 0 */
+	
+	
+	var error = function error() {
+	    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+	        args[_key] = arguments[_key];
+	    }
+	
+	    if (console && console.error) {
+	        var prefix = '[InfiniteTree]';
+	        console.error.apply(console, [prefix].concat(args));
+	    }
+	};
+	
+	var ensureNodeInstance = function ensureNodeInstance(node) {
+	    if (!node) {
+	        // undefined or null
+	        return false;
+	    }
+	    if (!(node instanceof _flattree.Node)) {
+	        error('The node must be a Node object.');
+	        return false;
+	    }
+	    return true;
+	};
+	
+	var createRootNode = function createRootNode(rootNode) {
+	    return Object.assign(rootNode || new _flattree.Node(), {
+	        parent: null,
+	        children: [],
+	        state: {
+	            depth: -1,
+	            open: true, // always open
+	            path: '',
+	            prefixMask: '',
+	            total: 0
+	        }
+	    });
+	};
+	
+	var InfiniteTree = function (_events$EventEmitter) {
+	    _inherits(InfiniteTree, _events$EventEmitter);
+	
+	    // Creates new InfiniteTree object.
+	    function InfiniteTree(el, options) {
+	        _classCallCheck(this, InfiniteTree);
+	
+	        var _this = _possibleConstructorReturn(this, _events$EventEmitter.call(this));
+	
+	        _this.options = {
+	            autoOpen: false,
+	            droppable: false,
+	            el: null,
+	            layout: 'div',
+	            loadNodes: null,
+	            noDataClass: 'infinite-tree-no-data',
+	            noDataText: 'No data',
+	            nodeIdAttr: 'data-id',
+	            rowRenderer: _renderer.defaultRowRenderer,
+	            selectable: true,
+	            shouldSelectNode: null,
+	            togglerClass: 'infinite-tree-toggler'
+	        };
+	        _this.state = {
+	            openNodes: [],
+	            rootNode: createRootNode(),
+	            selectedNode: null
+	        };
+	        _this.clusterize = null;
+	        _this.nodeTable = new _lookupTable2['default']();
+	        _this.nodes = [];
+	        _this.rows = [];
+	        _this.scrollElement = null;
+	        _this.contentElement = null;
+	        _this.draggableTarget = null;
+	        _this.droppableTarget = null;
+	        _this.contentListener = {
+	            'click': function click(event) {
+	                event = event || window.event;
+	
+	                // Wrap stopPropagation that allows click event handler to stop execution
+	                // by setting the cancelBubble property
+	                var stopPropagation = event.stopPropagation;
+	                event.stopPropagation = function () {
+	                    // Setting the cancelBubble property in browsers that don't support it doesn't hurt.
+	                    // Of course it doesn't actually cancel the bubbling, but the assignment itself is safe.
+	                    event.cancelBubble = true;
+	
+	                    if (stopPropagation) {
+	                        stopPropagation.call(event);
+	                    }
+	                };
+	
+	                // Call setTimeout(fn, 0) to re-queues the execution of subsequent calls, it allows the
+	                // click event to bubble up to higher level event handlers before handling tree events.
+	                setTimeout(function () {
+	                    // Stop execution if the cancelBubble property is set to true by higher level event handlers
+	                    if (event.cancelBubble === true) {
+	                        return;
+	                    }
+	
+	                    // Emit a "click" event
+	                    _this.emit('click', event);
+	
+	                    // Stop execution if the cancelBubble property is set to true after emitting the click event
+	                    if (event.cancelBubble === true) {
+	                        return;
+	                    }
+	
+	                    var itemTarget = null;
+	                    var clickToggler = false;
+	
+	                    if (event.target) {
+	                        itemTarget = event.target !== event.currentTarget ? event.target : null;
+	                    } else if (event.srcElement) {
+	                        // IE8
+	                        itemTarget = event.srcElement;
+	                    }
+	
+	                    while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
+	                        if ((0, _elementClass2['default'])(itemTarget).has(_this.options.togglerClass)) {
+	                            clickToggler = true;
+	                        }
+	                        itemTarget = itemTarget.parentElement;
+	                    }
+	
+	                    if (!itemTarget || itemTarget.hasAttribute('disabled')) {
+	                        return;
+	                    }
+	
+	                    var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
+	                    var node = _this.getNodeById(id);
+	                    if (!node) {
+	                        return;
+	                    }
+	
+	                    // Click on the toggler to open/close a tree node
+	                    if (clickToggler) {
+	                        _this.toggleNode(node);
+	                        return;
+	                    }
+	
+	                    _this.selectNode(node); // selectNode will re-render the tree
+	                }, 0);
+	            },
+	            'dblclick': function dblclick(event) {
+	                // Emit a "doubleClick" event
+	                _this.emit('doubleClick', event);
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragstart
+	            // The dragstart event is fired when the user starts dragging an element or text selection.
+	            'dragstart': function dragstart(event) {
+	                event = event || window.event;
+	
+	                _this.draggableTarget = event.target || event.srcElement;
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragend
+	            // The dragend event is fired when a drag operation is being ended (by releasing a mouse button or hitting the escape key).
+	            'dragend': function dragend(event) {
+	                event = event || window.event;
+	
+	                var _this$options$droppab = _this.options.droppable.hoverClass,
+	                    hoverClass = _this$options$droppab === undefined ? '' : _this$options$droppab;
+	
+	                // Draggable
+	
+	                _this.draggableTarget = null;
+	
+	                // Droppable
+	                if (_this.droppableTarget) {
+	                    (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
+	                    _this.droppableTarget = null;
+	                }
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragenter
+	            // The dragenter event is fired when a dragged element or text selection enters a valid drop target.
+	            'dragenter': function dragenter(event) {
+	                event = event || window.event;
+	
+	                var itemTarget = null;
+	
+	                if (event.target) {
+	                    itemTarget = event.target !== event.currentTarget ? event.target : null;
+	                } else if (event.srcElement) {
+	                    // IE8
+	                    itemTarget = event.srcElement;
+	                }
+	
+	                while (itemTarget && itemTarget.parentElement !== _this.contentElement) {
+	                    itemTarget = itemTarget.parentElement;
+	                }
+	
+	                if (!itemTarget) {
+	                    return;
+	                }
+	
+	                if (_this.droppableTarget === itemTarget) {
+	                    return;
+	                }
+	
+	                var _this$options$droppab2 = _this.options.droppable,
+	                    accept = _this$options$droppab2.accept,
+	                    _this$options$droppab3 = _this$options$droppab2.hoverClass,
+	                    hoverClass = _this$options$droppab3 === undefined ? '' : _this$options$droppab3;
+	
+	
+	                (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
+	                _this.droppableTarget = null;
+	
+	                var canDrop = true; // Defaults to true
+	
+	                if (typeof accept === 'function') {
+	                    var id = itemTarget.getAttribute(_this.options.nodeIdAttr);
+	                    var node = _this.getNodeById(id);
+	
+	                    canDrop = !!accept.call(_this, event, {
+	                        type: 'dragenter',
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: itemTarget,
+	                        node: node
+	                    });
+	                }
+	
+	                if (canDrop) {
+	                    (0, _elementClass2['default'])(itemTarget).add(hoverClass);
+	                    _this.droppableTarget = itemTarget;
+	                }
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/dragover
+	            // The dragover event is fired when an element or text selection is being dragged over a valid drop target (every few hundred milliseconds).
+	            'dragover': function dragover(event) {
+	                event = event || window.event;
+	
+	                (0, _domEvents.preventDefault)(event);
+	            },
+	            // https://developer.mozilla.org/en-US/docs/Web/Events/drop
+	            // The drop event is fired when an element or text selection is dropped on a valid drop target.
+	            'drop': function drop(event) {
+	                event = event || window.event;
+	
+	                // prevent default action (open as link for some elements)
+	                (0, _domEvents.preventDefault)(event);
+	
+	                if (!(_this.draggableTarget && _this.droppableTarget)) {
+	                    return;
+	                }
+	
+	                var _this$options$droppab4 = _this.options.droppable,
+	                    accept = _this$options$droppab4.accept,
+	                    drop = _this$options$droppab4.drop,
+	                    _this$options$droppab5 = _this$options$droppab4.hoverClass,
+	                    hoverClass = _this$options$droppab5 === undefined ? '' : _this$options$droppab5;
+	
+	                var id = _this.droppableTarget.getAttribute(_this.options.nodeIdAttr);
+	                var node = _this.getNodeById(id);
+	
+	                var canDrop = true; // Defaults to true
+	
+	                if (typeof accept === 'function') {
+	                    canDrop = !!accept.call(_this, event, {
+	                        type: 'drop',
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: _this.droppableTarget,
+	                        node: node
+	                    });
+	                }
+	
+	                if (canDrop && typeof drop === 'function') {
+	                    drop.call(_this, event, {
+	                        draggableTarget: _this.draggableTarget,
+	                        droppableTarget: _this.droppableTarget,
+	                        node: node
+	                    });
+	                }
+	
+	                (0, _elementClass2['default'])(_this.droppableTarget).remove(hoverClass);
+	                _this.droppableTarget = null;
+	            }
+	        };
+	
+	
+	        if ((0, _isDom2['default'])(el)) {
+	            options = _extends({}, options, { el: el });
+	        } else {
+	            options = el;
+	        }
+	
+	        // Assign options
+	        _this.options = _extends({}, _this.options, options);
+	
+	        if (!_this.options.el) {
+	            console.error('Failed to initialize infinite-tree: el is not specified.', options);
+	            return _possibleConstructorReturn(_this);
+	        }
+	
+	        _this.create();
+	
+	        // Load tree data if it's provided
+	        if (options.data) {
+	            _this.loadData(options.data);
+	        }
+	        return _this;
+	    }
+	
+	    InfiniteTree.prototype.create = function create() {
+	        var _this2 = this;
+	
+	        if (!this.options.el) {
+	            error('The element option is not specified.');
+	        }
+	
+	        var tag = null;
+	
+	        this.scrollElement = document.createElement('div');
+	
+	        if (this.options.layout === 'table') {
+	            var tableElement = document.createElement('table');
+	            tableElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-table');
+	            var contentElement = document.createElement('tbody');
+	            tableElement.appendChild(contentElement);
+	            this.scrollElement.appendChild(tableElement);
+	            this.contentElement = contentElement;
+	
+	            // The tag name for supporting elements
+	            tag = 'tr';
+	        } else {
+	            var _contentElement = document.createElement('div');
+	            this.scrollElement.appendChild(_contentElement);
+	            this.contentElement = _contentElement;
+	
+	            // The tag name for supporting elements
+	            tag = 'div';
+	        }
+	
+	        this.scrollElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-scroll');
+	        this.contentElement.className = (0, _classnames2['default'])('infinite-tree', 'infinite-tree-content');
+	
+	        this.options.el.appendChild(this.scrollElement);
+	
+	        this.clusterize = new _clusterize2['default']({
+	            tag: tag,
+	            rows: [],
+	            scrollElem: this.scrollElement,
+	            contentElem: this.contentElement,
+	            no_data_text: this.options.noDataText,
+	            no_data_class: this.options.noDataClass,
+	            callbacks: {
+	                clusterWillChange: function clusterWillChange() {
+	                    _this2.emit('clusterWillChange');
+	                },
+	                clusterChanged: function clusterChanged() {
+	                    _this2.emit('clusterDidChange');
+	                }
+	            }
+	        });
+	
+	        (0, _domEvents.addEventListener)(this.contentElement, 'click', this.contentListener.click);
+	        (0, _domEvents.addEventListener)(this.contentElement, 'dblclick', this.contentListener.dblclick);
+	
+	        if (this.options.droppable) {
+	            (0, _domEvents.addEventListener)(document, 'dragstart', this.contentListener.dragstart);
+	            (0, _domEvents.addEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _domEvents.addEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	        }
+	    };
+	
+	    InfiniteTree.prototype.destroy = function destroy() {
+	        (0, _domEvents.removeEventListener)(this.contentElement, 'click', this.contentListener);
+	        if (this.options.droppable) {
+	            (0, _domEvents.removeEventListener)(document, 'dragstart', this.contentListener.dragstart);
+	            (0, _domEvents.removeEventListener)(document, 'dragend', this.contentListener.dragend);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragenter', this.contentListener.dragenter);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragleave', this.contentListener.dragleave);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'dragover', this.contentListener.dragover);
+	            (0, _domEvents.removeEventListener)(this.contentElement, 'drop', this.contentListener.drop);
+	        }
+	
+	        this.clear();
+	
+	        if (this.clusterize) {
+	            this.clusterize.destroy(true); // True to remove all data from the list
+	            this.clusterize = null;
+	        }
+	
+	        // Remove all child nodes
+	        while (this.contentElement.firstChild) {
+	            this.contentElement.removeChild(this.contentElement.firstChild);
+	        }
+	        while (this.scrollElement.firstChild) {
+	            this.scrollElement.removeChild(this.scrollElement.firstChild);
+	        }
+	        if (this.options.el) {
+	            var containerElement = this.options.el;
+	            while (containerElement.firstChild) {
+	                containerElement.removeChild(containerElement.firstChild);
+	            }
+	        }
+	        this.contentElement = null;
+	        this.scrollElement = null;
+	    };
+	    // Adds an array of new child nodes to a parent node at the specified index.
+	    // * If the parent is null or undefined, inserts new childs at the specified index in the top-level.
+	    // * If the parent has children, the method adds the new child to it at the specified index.
+	    // * If the parent does not have children, the method adds the new child to the parent.
+	    // * If the index value is greater than or equal to the number of children in the parent, the method adds the child at the end of the children.
+	    // @param {Array} newNodes An array of new child nodes.
+	    // @param {number} [index] The 0-based index of where to insert the child node.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.addChildNodes = function addChildNodes(newNodes, index, parentNode) {
+	        var _this3 = this;
+	
+	        newNodes = [].concat(newNodes || []); // Ensure array
+	        if (newNodes.length === 0) {
+	            return false;
+	        }
+	
+	        if ((typeof index === 'undefined' ? 'undefined' : _typeof(index)) === 'object') {
+	            // The 'object' type might be Node or null
+	            parentNode = index || this.state.rootNode; // Defaults to rootNode if not specified
+	            index = parentNode.children.length;
+	        } else {
+	            parentNode = parentNode || this.state.rootNode; // Defaults to rootNode if not specified
+	        }
+	
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
+	
+	        if (typeof index !== 'number') {
+	            index = parentNode.children.length;
+	        }
+	
+	        // Assign parent
+	        newNodes.forEach(function (newNode) {
+	            newNode.parent = parentNode;
+	        });
+	
+	        // Insert new child node at the specified index
+	        parentNode.children.splice.apply(parentNode.children, [index, 0].concat(newNodes));
+	
+	        // Get the index of the first new node within the array of child nodes
+	        index = parentNode.children.indexOf(newNodes[0]);
+	
+	        var deleteCount = parentNode.state.total;
+	        var nodes = (0, _flattree.flatten)(parentNode.children, { openNodes: this.state.openNodes });
+	        var rows = nodes.map(function (node) {
+	            return _this3.options.rowRenderer(node, _this3.options);
+	        });
+	
+	        if (parentNode === this.state.rootNode) {
+	            this.nodes = nodes;
+	            this.rows = rows;
+	        } else {
+	            var parentOffset = this.nodes.indexOf(parentNode);
+	            if (parentOffset >= 0) {
+	                // Update nodes & rows
+	                this.nodes.splice.apply(this.nodes, [parentOffset + 1, deleteCount].concat(nodes));
+	                this.rows.splice.apply(this.rows, [parentOffset + 1, deleteCount].concat(rows));
+	
+	                // Update the row corresponding to the parent node
+	                this.rows[parentOffset] = this.options.rowRenderer(parentNode, this.options);
+	            }
+	        }
+	
+	        // Update the lookup table with newly added nodes
+	        parentNode.children.slice(index).forEach(function (childNode) {
+	            _this3.flattenNode(childNode).forEach(function (node) {
+	                if (node.id !== undefined) {
+	                    _this3.nodeTable.set(node.id, node);
+	                }
+	            });
+	        });
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Adds a new child node to the end of the list of children of a specified parent node.
+	    // * If the parent is null or undefined, inserts the child at the specified index in the top-level.
+	    // * If the parent has children, the method adds the child as the last child.
+	    // * If the parent does not have children, the method adds the child to the parent.
+	    // @param {object} newNode The new child node.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.appendChildNode = function appendChildNode(newNode, parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
+	
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
+	
+	        var index = parentNode.children.length;
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	        return this.addChildNodes(newNodes, index, parentNode);
+	    };
+	    // Clears the tree.
+	
+	
+	    InfiniteTree.prototype.clear = function clear() {
+	        this.clusterize.clear();
+	        this.nodeTable.clear();
+	        this.nodes = [];
+	        this.rows = [];
+	        this.state.openNodes = [];
+	        this.state.rootNode = createRootNode(this.state.rootNode);
+	        this.state.selectedNode = null;
+	    };
+	    // Closes a node to hide its children.
+	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "closeNode" and "selectNode" events from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.closeNode = function closeNode(node, options) {
+	        var _options = _extends({}, options),
+	            _options$silent = _options.silent,
+	            silent = _options$silent === undefined ? false : _options$silent;
+	
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            error('Invalid node index');
+	            return false;
+	        }
+	
+	        // Check if the closeNode action can be performed
+	        if (this.state.openNodes.indexOf(node) < 0) {
+	            return false;
+	        }
+	
+	        // Keep selected node unchanged if "node" is equal to "this.state.selectedNode"
+	        if (this.state.selectedNode && this.state.selectedNode !== node) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0     => close this node; next selected node (total=2)
+	            // row #2       node.0.0.0 => selected node (total=0)
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = nodeIndex + 1;
+	            var rangeTo = nodeIndex + node.state.total;
+	
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                this.selectNode(node, options);
+	            }
+	        }
+	
+	        node.state.open = false; // Set the open state to false
+	        var openNodes = this.state.openNodes.filter(function (node) {
+	            return node.hasChildren() && node.state.open;
+	        });
+	        this.state.openNodes = openNodes;
+	
+	        var deleteCount = node.state.total;
+	
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = node; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+	
+	        // Update nodes & rows
+	        this.nodes.splice(nodeIndex + 1, deleteCount);
+	        this.rows.splice(nodeIndex + 1, deleteCount);
+	
+	        // Update the row corresponding to the node
+	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	
+	        if (!silent) {
+	            // Emit a "closeNode" event
+	            this.emit('closeNode', node);
+	        }
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Flattens all child nodes of a parent node by performing full tree traversal using child-parent link.
+	    // No recursion or stack is involved.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
+	
+	
+	    InfiniteTree.prototype.flattenChildNodes = function flattenChildNodes(parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
+	
+	        if (!ensureNodeInstance(parentNode)) {
+	            return [];
+	        }
+	
+	        var list = [];
+	        var node = parentNode.getFirstChild(); // Ignore parent node
+	        while (node) {
+	            list.push(node);
+	            if (node.hasChildren()) {
+	                node = node.getFirstChild();
+	            } else {
+	                // Find the parent level
+	                while (node.getNextSibling() === null && node.parent !== parentNode) {
+	                    // Use child-parent link to get to the parent level
+	                    node = node.getParent();
+	                }
+	
+	                // Get next sibling
+	                node = node.getNextSibling();
+	            }
+	        }
+	
+	        return list;
+	    };
+	    // Flattens a node by performing full tree traversal using child-parent link.
+	    // No recursion or stack is involved.
+	    // @param {Node} node The Node object.
+	    // @return {array} Returns a flattened list of Node objects.
+	
+	
+	    InfiniteTree.prototype.flattenNode = function flattenNode(node) {
+	        if (!ensureNodeInstance(node)) {
+	            return [];
+	        }
+	
+	        return [node].concat(this.flattenChildNodes(node));
+	    };
+	    // Gets a list of child nodes.
+	    // @param {Node} [parentNode] The Node object that defines the parent node. If null or undefined, returns a list of top level nodes.
+	    // @return {array} Returns an array of Node objects containing all the child nodes of the parent node.
+	
+	
+	    InfiniteTree.prototype.getChildNodes = function getChildNodes(parentNode) {
+	        // Defaults to rootNode if the parentNode is not specified
+	        parentNode = parentNode || this.state.rootNode;
+	
+	        if (!ensureNodeInstance(parentNode)) {
+	            return [];
+	        }
+	
+	        return parentNode.children;
+	    };
+	    // Gets a node by its unique id. This assumes that you have given the nodes in the data a unique id.
+	    // @param {string|number} id An unique node id. A null value will be returned if the id doesn't match.
+	    // @return {Node} Returns a node the matches the id, null otherwise.
+	
+	
+	    InfiniteTree.prototype.getNodeById = function getNodeById(id) {
+	        var node = this.nodeTable.get(id);
+	        if (!node) {
+	            // Find the first node that matches the id
+	            node = this.nodes.filter(function (node) {
+	                return node.id === id;
+	            })[0];
+	            if (!node) {
+	                return null;
+	            }
+	            this.nodeTable.set(node.id, node);
+	        }
+	        return node;
+	    };
+	    // Gets an array of open nodes.
+	    // @return {array} Returns an array of Node objects containing open nodes.
+	
+	
+	    InfiniteTree.prototype.getOpenNodes = function getOpenNodes() {
+	        // returns a shallow copy of an array into a new array object.
+	        return this.state.openNodes.slice();
+	    };
+	    // Gets the root node.
+	    // @return {Node} Returns the root node, or null if empty.
+	
+	
+	    InfiniteTree.prototype.getRootNode = function getRootNode() {
+	        return this.state.rootNode;
+	    };
+	    // Gets the selected node.
+	    // @return {Node} Returns the selected node, or null if not selected.
+	
+	
+	    InfiniteTree.prototype.getSelectedNode = function getSelectedNode() {
+	        return this.state.selectedNode;
+	    };
+	    // Inserts the specified node after the reference node.
+	    // @param {object} newNode The new sibling node.
+	    // @param {Node} referenceNode The Node object that defines the reference node.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.insertNodeAfter = function insertNodeAfter(newNode, referenceNode) {
+	        if (!ensureNodeInstance(referenceNode)) {
+	            return false;
+	        }
+	
+	        var parentNode = referenceNode.getParent();
+	        var index = parentNode.children.indexOf(referenceNode) + 1;
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	
+	        return this.addChildNodes(newNodes, index, parentNode);
+	    };
+	    // Inserts the specified node before the reference node.
+	    // @param {object} newNode The new sibling node.
+	    // @param {Node} referenceNode The Node object that defines the reference node.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.insertNodeBefore = function insertNodeBefore(newNode, referenceNode) {
+	        if (!ensureNodeInstance(referenceNode)) {
+	            return false;
+	        }
+	
+	        var parentNode = referenceNode.getParent();
+	        var index = parentNode.children.indexOf(referenceNode);
+	        var newNodes = [].concat(newNode || []); // Ensure array
+	
+	        return this.addChildNodes(newNodes, index, parentNode);
+	    };
+	    // Loads data in the tree.
+	    // @param {object|array} data The data is an object or array of objects that defines the node.
+	
+	
+	    InfiniteTree.prototype.loadData = function loadData() {
+	        var _this4 = this;
+	
+	        var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	
+	        this.nodes = (0, _flattree.flatten)(data, { openAllNodes: this.options.autoOpen });
+	
+	        // Clear lookup table
+	        this.nodeTable.clear();
+	
+	        this.state.openNodes = this.nodes.filter(function (node) {
+	            return node.hasChildren() && node.state.open;
+	        });
+	        this.state.selectedNode = null;
+	
+	        var rootNode = function () {
+	            var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	
+	            // Finding the root node
+	            while (node && node.parent !== null) {
+	                node = node.parent;
+	            }
+	            return node;
+	        }(this.nodes.length > 0 ? this.nodes[0] : null);
+	
+	        this.state.rootNode = rootNode || createRootNode(this.state.rootNode); // Create a new root node if rootNode is null
+	
+	        // Update the lookup table with newly added nodes
+	        this.flattenChildNodes(this.state.rootNode).forEach(function (node) {
+	            if (node.id !== undefined) {
+	                _this4.nodeTable.set(node.id, node);
+	            }
+	        });
+	
+	        // Update rows
+	        this.rows = this.nodes.map(function (node) {
+	            return _this4.options.rowRenderer(node, _this4.options);
+	        });
+	
+	        // Updates list with new data
+	        this.update();
+	    };
+	    // Opens a node to display its children.
+	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "openNode" event from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.openNode = function openNode(node, options) {
+	        var _this5 = this;
+	
+	        var _options2 = _extends({}, options),
+	            _options2$silent = _options2.silent,
+	            silent = _options2$silent === undefined ? false : _options2$silent;
+	
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            error('Invalid node index');
+	            return false;
+	        }
+	
+	        // Check if the openNode action can be performed
+	        if (this.state.openNodes.indexOf(node) >= 0) {
+	            return false;
+	        }
+	
+	        if (!node.hasChildren() && node.loadOnDemand) {
+	            if (typeof this.options.loadNodes !== 'function') {
+	                return false;
+	            }
+	
+	            // Reentrancy not allowed
+	            if (node.state.loading === true) {
+	                return false;
+	            }
+	
+	            // Set loading state to true
+	            node.state.loading = true;
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	
+	            // Updates list with new data
+	            this.update();
+	
+	            this.options.loadNodes(node, function (err, nodes) {
+	                // Set loading state to false
+	                node.state.loading = false;
+	                _this5.rows[nodeIndex] = _this5.options.rowRenderer(node, _this5.options);
+	
+	                // Updates list with new data
+	                _this5.update();
+	
+	                if (err) {
+	                    return;
+	                }
+	                if (!nodes) {
+	                    return;
+	                }
+	
+	                nodes = [].concat(nodes || []); // Ensure array
+	                if (nodes.length === 0) {
+	                    return;
+	                }
+	
+	                // Append child nodes
+	                nodes.forEach(function (childNode) {
+	                    _this5.appendChildNode(childNode, node);
+	                });
+	
+	                // Ensure the node has children to prevent from infinite loop
+	                if (node.hasChildren()) {
+	                    // Call openNode again
+	                    _this5.openNode(node, options);
+	                }
+	            });
+	
+	            return true;
+	        }
+	
+	        node.state.open = true; // Set node.state.open to true
+	        var openNodes = [node].concat(this.state.openNodes); // the most recently used items first
+	        this.state.openNodes = openNodes;
+	
+	        var nodes = (0, _flattree.flatten)(node.children, { openNodes: this.state.openNodes });
+	        var rows = nodes.map(function (node) {
+	            return _this5.options.rowRenderer(node, _this5.options);
+	        });
+	
+	        // Update nodes & rows
+	        this.nodes.splice.apply(this.nodes, [nodeIndex + 1, 0].concat(nodes));
+	        this.rows.splice.apply(this.rows, [nodeIndex + 1, 0].concat(rows));
+	
+	        // Update the row corresponding to the node
+	        this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	
+	        // Add all child nodes to the lookup table if the first child does not exist in the lookup table
+	        if (nodes.length > 0 && !this.nodeTable.get(nodes[0])) {
+	            nodes.forEach(function (node) {
+	                if (node.id !== undefined) {
+	                    _this5.nodeTable.set(node.id, node);
+	                }
+	            });
+	        }
+	
+	        if (!silent) {
+	            // Emit a "openNode" event
+	            this.emit('openNode', node);
+	        }
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Removes all child nodes from a parent node.
+	    // @param {Node} parentNode The Node object that defines the parent node.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.removeChildNodes = function removeChildNodes(parentNode, options) {
+	        var _this6 = this;
+	
+	        if (!ensureNodeInstance(parentNode)) {
+	            return false;
+	        }
+	
+	        if (parentNode.children.length === 0) {
+	            return false;
+	        }
+	        if (parentNode === this.state.rootNode) {
+	            this.clear();
+	            return true;
+	        }
+	
+	        var parentNodeIndex = this.nodes.indexOf(parentNode);
+	
+	        // Update selected node
+	        if (parentNodeIndex >= 0 && this.state.selectedNode) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0
+	            // row #2       node.0.0.0 => current selected node
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = parentNodeIndex + 1;
+	            var rangeTo = parentNodeIndex + parentNode.state.total;
+	
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                if (parentNode === this.state.rootNode) {
+	                    this.selectNode(null, options);
+	                } else {
+	                    this.selectNode(parentNode, options);
+	                }
+	            }
+	        }
+	
+	        // Get the nodes being removed
+	        var removedNodes = this.flattenChildNodes(parentNode);
+	
+	        // Get the number of nodes to be removed
+	        var deleteCount = parentNode.state.total;
+	
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = parentNode; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+	
+	        // Update parent node
+	        parentNode.children = [];
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+	
+	        if (parentNodeIndex >= 0) {
+	            // Update nodes & rows
+	            this.nodes.splice(parentNodeIndex + 1, deleteCount);
+	            this.rows.splice(parentNodeIndex + 1, deleteCount);
+	
+	            // Update the row corresponding to the parent node
+	            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
+	        }
+	
+	        {
+	            // Update open nodes and lookup table
+	            this.state.openNodes = this.state.openNodes.filter(function (node) {
+	                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+	            });
+	
+	            removedNodes.forEach(function (node) {
+	                _this6.nodeTable.unset(node.id);
+	            });
+	        }
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Removes a node and all of its child nodes.
+	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.removeNode = function removeNode(node, options) {
+	        var _this7 = this;
+	
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        var parentNode = node.parent;
+	        if (!parentNode) {
+	            return false;
+	        }
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        var parentNodeIndex = this.nodes.indexOf(parentNode);
+	
+	        // Update selected node
+	        if (nodeIndex >= 0 && this.state.selectedNode) {
+	            // row #0 - node.0         => parent node (total=4)
+	            // row #1   - node.0.0     => remove this node (total=2)
+	            // row #2       node.0.0.0 => current selected node (total=0)
+	            // row #3       node.0.0.1
+	            // row #4     node.0.1     => next selected node (total=0)
+	            var selectedIndex = this.nodes.indexOf(this.state.selectedNode);
+	            var rangeFrom = nodeIndex;
+	            var rangeTo = nodeIndex + node.state.total + 1;
+	
+	            if (rangeFrom <= selectedIndex && selectedIndex <= rangeTo) {
+	                // Change the selected node in the following order:
+	                // 1. next sibling node
+	                // 2. previous sibling node
+	                // 3. parent node
+	                var selectedNode = node.getNextSibling() || node.getPreviousSibling() || node.getParent();
+	
+	                if (selectedNode === this.state.rootNode) {
+	                    this.selectNode(null, options);
+	                } else {
+	                    this.selectNode(selectedNode, options);
+	                }
+	            }
+	        }
+	
+	        // Get the nodes being removed
+	        var removedNodes = this.flattenNode(node);
+	
+	        // Get the number of nodes to be removed
+	        var deleteCount = node.state.total + 1;
+	
+	        // Subtract the deleteCount for all ancestors (parent, grandparent, etc.) of the current node
+	        for (var p = parentNode; p !== null; p = p.parent) {
+	            p.state.total = p.state.total - deleteCount;
+	        }
+	
+	        // Update parent node
+	        parentNode.children.splice(parentNode.children.indexOf(node), 1);
+	        parentNode.state.open = parentNode.state.open && parentNode.children.length > 0;
+	
+	        if (nodeIndex >= 0) {
+	            // Update nodes & rows
+	            this.nodes.splice(nodeIndex, deleteCount);
+	            this.rows.splice(nodeIndex, deleteCount);
+	        }
+	
+	        // Update the row corresponding to the parent node
+	        if (parentNodeIndex >= 0) {
+	            this.rows[parentNodeIndex] = this.options.rowRenderer(parentNode, this.options);
+	        }
+	
+	        {
+	            // Update open nodes and lookup table
+	            this.state.openNodes = this.state.openNodes.filter(function (node) {
+	                return removedNodes.indexOf(node) < 0 && node.hasChildren() && node.state.open;
+	            });
+	
+	            removedNodes.forEach(function (node) {
+	                _this7.nodeTable.unset(node.id);
+	            });
+	        }
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Sets the current scroll position to this node.
+	    // @param {Node} node The Node object.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.scrollToNode = function scrollToNode(node) {
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            return false;
+	        }
+	        if (!this.contentElement) {
+	            return false;
+	        }
+	        // Get the offset height of the first child
+	        var firstChild = this.contentElement.firstChild;
+	        var rowHeight = firstChild && firstChild.offsetHeight || 0;
+	        this.scrollTop(nodeIndex * rowHeight);
+	
+	        return true;
+	    };
+	    // Gets (or sets) the current vertical position of the scroll bar.
+	    // @param {number} [value] If the value is specified, indicates the new position to set the scroll bar to.
+	    // @return {number} Returns the vertical scroll position.
+	
+	
+	    InfiniteTree.prototype.scrollTop = function scrollTop(value) {
+	        if (!this.scrollElement) {
+	            return 0;
+	        }
+	        if (value !== undefined) {
+	            this.scrollElement.scrollTop = Number(value);
+	        }
+	        return this.scrollElement.scrollTop;
+	    };
+	    // Selects a node.
+	    // @param {Node} node The Node object. If null or undefined, deselects the current node.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "selectNode" event from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.selectNode = function selectNode() {
+	        var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	        var options = arguments[1];
+	        var _options3 = this.options,
+	            selectable = _options3.selectable,
+	            shouldSelectNode = _options3.shouldSelectNode;
+	
+	        var _options4 = _extends({}, options),
+	            _options4$silent = _options4.silent,
+	            silent = _options4$silent === undefined ? false : _options4$silent;
+	
+	        if (!selectable) {
+	            return false;
+	        }
+	        if (typeof shouldSelectNode === 'function' && !shouldSelectNode(node)) {
+	            return false;
+	        }
+	        if (node === this.state.rootNode) {
+	            return false;
+	        }
+	
+	        if (node === null) {
+	            // Deselect the current node
+	            if (this.state.selectedNode) {
+	                var selectedNode = this.state.selectedNode;
+	                var selectedIndex = this.nodes.indexOf(selectedNode);
+	
+	                selectedNode.state.selected = false;
+	                this.rows[selectedIndex] = this.options.rowRenderer(selectedNode, this.options);
+	                this.state.selectedNode = null;
+	
+	                if (!silent) {
+	                    // Emit a "selectNode" event
+	                    this.emit('selectNode', null);
+	                }
+	
+	                // Updates list with new data
+	                this.update();
+	
+	                return true;
+	            }
+	
+	            return false;
+	        }
+	
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex < 0) {
+	            error('Invalid node index');
+	            return false;
+	        }
+	
+	        // Select this node
+	        if (this.state.selectedNode !== node) {
+	            node.state.selected = true;
+	
+	            // Update the row corresponding to the node
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	        }
+	
+	        // Deselect the current node
+	        if (this.state.selectedNode) {
+	            var _selectedNode = this.state.selectedNode;
+	            var _selectedIndex = this.nodes.indexOf(_selectedNode);
+	            _selectedNode.state.selected = false;
+	            this.rows[_selectedIndex] = this.options.rowRenderer(_selectedNode, this.options);
+	        }
+	
+	        if (this.state.selectedNode !== node) {
+	            this.state.selectedNode = node;
+	
+	            if (!silent) {
+	                // Emit a "selectNode" event
+	                this.emit('selectNode', node);
+	            }
+	        } else {
+	            this.state.selectedNode = null;
+	
+	            if (!silent) {
+	                // Emit a "selectNode" event
+	                this.emit('selectNode', null);
+	            }
+	        }
+	
+	        // Updates list with new data
+	        this.update();
+	
+	        return true;
+	    };
+	    // Toggles a node to display or hide its children.
+	    // @param {Node} node The Node object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.silent] Pass true to prevent "closeNode", "openNode", and "selectNode" events from being triggered.
+	    // @return {boolean} Returns true on success, false otherwise.
+	
+	
+	    InfiniteTree.prototype.toggleNode = function toggleNode(node, options) {
+	        if (!ensureNodeInstance(node)) {
+	            return false;
+	        }
+	
+	        if (this.state.openNodes.indexOf(node) >= 0) {
+	            // close node
+	            return this.closeNode(node, options);
+	        } else {
+	            // open node
+	            return this.openNode(node, options);
+	        }
+	    };
+	    // Serializes the current state of a node to a JSON string.
+	    // @param {Node} node The Node object. If null, returns the whole tree.
+	    // @return {string} Returns a JSON string represented the tree.
+	
+	
+	    InfiniteTree.prototype.toString = function toString() {
+	        var node = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+	
+	        var traverse = function traverse(node) {
+	            var s = '[';
+	            if (node && node.children) {
+	                var _loop = function _loop(i) {
+	                    var list = [];
+	                    s = s + '{';
+	                    Object.keys(node).forEach(function (key) {
+	                        var value = node[key];
+	                        if (key === 'parent') {
+	                            // ignore parent
+	                            return;
+	                        }
+	                        if (key === 'children') {
+	                            // traverse child nodes
+	                            list.push('"' + key + '":' + traverse(node.children[i]));
+	                            return;
+	                        }
+	                        if (typeof value === 'string' || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') {
+	                            list.push('"' + key + '":' + JSON.stringify(value));
+	                        } else {
+	                            // primitive types
+	                            list.push('"' + key + '":' + value);
+	                        }
+	                    });
+	                    s = s + list.join(',');
+	                    s = s + '}' + (i === node.children.length - 1 ? '' : ',');
+	                };
+	
+	                for (var i = 0; i < node.children.length; ++i) {
+	                    _loop(i);
+	                }
+	            }
+	            s = s + ']';
+	            return s;
+	        };
+	
+	        if (!node) {
+	            node = this.state.rootNode;
+	        }
+	
+	        return traverse(node);
+	    };
+	    // Updates the tree.
+	
+	
+	    InfiniteTree.prototype.update = function update() {
+	        // Emit a "contentWillUpdate" event
+	        this.emit('contentWillUpdate');
+	
+	        // Update the list with new data
+	        this.clusterize.update(this.rows);
+	
+	        // Emit a "contentWillUpdate" event
+	        this.emit('contentDidUpdate');
+	    };
+	    // Updates the data of a node.
+	    // @param {Node} node The Node object.
+	    // @param {object} data The data object.
+	    // @param {object} [options] The options object.
+	    // @param {boolean} [options.shallowRendering] True to render only the parent node, false to render the parent node and all expanded child nodes. Defaults to false.
+	
+	
+	    InfiniteTree.prototype.updateNode = function updateNode(node, data, options) {
+	        if (!ensureNodeInstance(node)) {
+	            return;
+	        }
+	
+	        // Clone a new one
+	        data = _extends({}, data);
+	
+	        // Ignore keys: children, parent, and state
+	        delete data.children;
+	        delete data.parent;
+	        delete data.state;
+	
+	        node = Object.assign(node, data);
+	
+	        // Retrieve node index
+	        var nodeIndex = this.nodes.indexOf(node);
+	        if (nodeIndex >= 0) {
+	            var _options5 = _extends({}, options),
+	                _options5$shallowRend = _options5.shallowRendering,
+	                shallowRendering = _options5$shallowRend === undefined ? false : _options5$shallowRend;
+	
+	            // Update the row corresponding to the node
+	
+	
+	            this.rows[nodeIndex] = this.options.rowRenderer(node, this.options);
+	
+	            if (!shallowRendering) {
+	                var rangeFrom = nodeIndex + 1;
+	                var rangeTo = nodeIndex + node.state.total;
+	                for (var index = rangeFrom; index <= rangeTo; ++index) {
+	                    this.rows[index] = this.options.rowRenderer(this.nodes[index], this.options);
+	                }
+	            }
+	
+	            // Updates list with new data
+	            this.update();
+	        }
+	    };
+	
+	    return InfiniteTree;
+	}(_events2['default'].EventEmitter);
+	
+	exports['default'] = InfiniteTree;
+
+/***/ },
+/* 193 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+	
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+	
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+	
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+	
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+	
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+	
+	  if (!this._events)
+	    this._events = {};
+	
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      } else {
+	        // At least give some kind of context to the user
+	        var err = new Error('Uncaught, unspecified "error" event. (' + er + ')');
+	        err.context = er;
+	        throw err;
+	      }
+	    }
+	  }
+	
+	  handler = this._events[type];
+	
+	  if (isUndefined(handler))
+	    return false;
+	
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        args = Array.prototype.slice.call(arguments, 1);
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    args = Array.prototype.slice.call(arguments, 1);
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+	
+	  return true;
+	};
+	
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+	
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+	
+	  if (!this._events)
+	    this._events = {};
+	
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+	
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+	
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+	
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+	
+	  return this;
+	};
+	
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+	
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+	
+	  var fired = false;
+	
+	  function g() {
+	    this.removeListener(type, g);
+	
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+	
+	  g.listener = listener;
+	  this.on(type, g);
+	
+	  return this;
+	};
+	
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+	
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+	
+	  if (!this._events || !this._events[type])
+	    return this;
+	
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+	
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+	
+	    if (position < 0)
+	      return this;
+	
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+	
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+	
+	  return this;
+	};
+	
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+	
+	  if (!this._events)
+	    return this;
+	
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+	
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+	
+	  listeners = this._events[type];
+	
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else if (listeners) {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+	
+	  return this;
+	};
+	
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+	
+	EventEmitter.prototype.listenerCount = function(type) {
+	  if (this._events) {
+	    var evlistener = this._events[type];
+	
+	    if (isFunction(evlistener))
+	      return 1;
+	    else if (evlistener)
+	      return evlistener.length;
+	  }
+	  return 0;
+	};
+	
+	EventEmitter.listenerCount = function(emitter, type) {
+	  return emitter.listenerCount(type);
+	};
+	
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ },
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+	
+	(function () {
+		'use strict';
+	
+		var hasOwn = {}.hasOwnProperty;
+	
+		function classNames () {
+			var classes = [];
+	
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+	
+				var argType = typeof arg;
+	
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+	
+			return classes.join(' ');
+		}
+	
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 195 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/*! Clusterize.js - v0.17.2 - 2016-10-07
+	* http://NeXTs.github.com/Clusterize.js/
+	* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
+	
+	;(function(name, definition) {
+	    if (true) module.exports = definition();
+	    else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
+	    else this[name] = definition();
+	}('Clusterize', function() {
+	  "use strict"
+	
+	  // detect ie9 and lower
+	  // https://gist.github.com/padolsey/527683#comment-786682
+	  var ie = (function(){
+	    for( var v = 3,
+	             el = document.createElement('b'),
+	             all = el.all || [];
+	         el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->',
+	         all[0];
+	       ){}
+	    return v > 4 ? v : document.documentMode;
+	  }()),
+	  is_mac = navigator.platform.toLowerCase().indexOf('mac') + 1;
+	  var Clusterize = function(data) {
+	    if( ! (this instanceof Clusterize))
+	      return new Clusterize(data);
+	    var self = this;
+	
+	    var defaults = {
+	      rows_in_block: 50,
+	      blocks_in_cluster: 4,
+	      tag: null,
+	      show_no_data_row: true,
+	      no_data_class: 'clusterize-no-data',
+	      no_data_text: 'No data',
+	      keep_parity: true,
+	      callbacks: {}
+	    }
+	
+	    // public parameters
+	    self.options = {};
+	    var options = ['rows_in_block', 'blocks_in_cluster', 'show_no_data_row', 'no_data_class', 'no_data_text', 'keep_parity', 'tag', 'callbacks'];
+	    for(var i = 0, option; option = options[i]; i++) {
+	      self.options[option] = typeof data[option] != 'undefined' && data[option] != null
+	        ? data[option]
+	        : defaults[option];
+	    }
+	
+	    var elems = ['scroll', 'content'];
+	    for(var i = 0, elem; elem = elems[i]; i++) {
+	      self[elem + '_elem'] = data[elem + 'Id']
+	        ? document.getElementById(data[elem + 'Id'])
+	        : data[elem + 'Elem'];
+	      if( ! self[elem + '_elem'])
+	        throw new Error("Error! Could not find " + elem + " element");
+	    }
+	
+	    // tabindex forces the browser to keep focus on the scrolling list, fixes #11
+	    if( ! self.content_elem.hasAttribute('tabindex'))
+	      self.content_elem.setAttribute('tabindex', 0);
+	
+	    // private parameters
+	    var rows = isArray(data.rows)
+	        ? data.rows
+	        : self.fetchMarkup(),
+	      cache = {data: '', bottom: 0},
+	      scroll_top = self.scroll_elem.scrollTop;
+	
+	    // append initial data
+	    self.insertToDOM(rows, cache);
+	
+	    // restore the scroll position
+	    self.scroll_elem.scrollTop = scroll_top;
+	
+	    // adding scroll handler
+	    var last_cluster = false,
+	    scroll_debounce = 0,
+	    pointer_events_set = false,
+	    scrollEv = function() {
+	      // fixes scrolling issue on Mac #3
+	      if (is_mac) {
+	          if( ! pointer_events_set) self.content_elem.style.pointerEvents = 'none';
+	          pointer_events_set = true;
+	          clearTimeout(scroll_debounce);
+	          scroll_debounce = setTimeout(function () {
+	              self.content_elem.style.pointerEvents = 'auto';
+	              pointer_events_set = false;
+	          }, 50);
+	      }
+	      if (last_cluster != (last_cluster = self.getClusterNum()))
+	        self.insertToDOM(rows, cache);
+	      if (self.options.callbacks.scrollingProgress)
+	        self.options.callbacks.scrollingProgress(self.getScrollProgress());
+	    },
+	    resize_debounce = 0,
+	    resizeEv = function() {
+	      clearTimeout(resize_debounce);
+	      resize_debounce = setTimeout(self.refresh, 100);
+	    }
+	    on('scroll', self.scroll_elem, scrollEv);
+	    on('resize', window, resizeEv);
+	
+	    // public methods
+	    self.destroy = function(clean) {
+	      off('scroll', self.scroll_elem, scrollEv);
+	      off('resize', window, resizeEv);
+	      self.html((clean ? self.generateEmptyRow() : rows).join(''));
+	    }
+	    self.refresh = function(force) {
+	      if(self.getRowsHeight(rows) || force) self.update(rows);
+	    }
+	    self.update = function(new_rows) {
+	      rows = isArray(new_rows)
+	        ? new_rows
+	        : [];
+	      var scroll_top = self.scroll_elem.scrollTop;
+	      // fixes #39
+	      if(rows.length * self.options.item_height < scroll_top) {
+	        self.scroll_elem.scrollTop = 0;
+	        last_cluster = 0;
+	      }
+	      self.insertToDOM(rows, cache);
+	      self.scroll_elem.scrollTop = scroll_top;
+	    }
+	    self.clear = function() {
+	      self.update([]);
+	    }
+	    self.getRowsAmount = function() {
+	      return rows.length;
+	    }
+	    self.getScrollProgress = function() {
+	      return this.options.scroll_top / (rows.length * this.options.item_height) * 100 || 0;
+	    }
+	
+	    var add = function(where, _new_rows) {
+	      var new_rows = isArray(_new_rows)
+	        ? _new_rows
+	        : [];
+	      if( ! new_rows.length) return;
+	      rows = where == 'append'
+	        ? rows.concat(new_rows)
+	        : new_rows.concat(rows);
+	      self.insertToDOM(rows, cache);
+	    }
+	    self.append = function(rows) {
+	      add('append', rows);
+	    }
+	    self.prepend = function(rows) {
+	      add('prepend', rows);
+	    }
+	  }
+	
+	  Clusterize.prototype = {
+	    constructor: Clusterize,
+	    // fetch existing markup
+	    fetchMarkup: function() {
+	      var rows = [], rows_nodes = this.getChildNodes(this.content_elem);
+	      while (rows_nodes.length) {
+	        rows.push(rows_nodes.shift().outerHTML);
+	      }
+	      return rows;
+	    },
+	    // get tag name, content tag name, tag height, calc cluster height
+	    exploreEnvironment: function(rows) {
+	      var opts = this.options;
+	      opts.content_tag = this.content_elem.tagName.toLowerCase();
+	      if( ! rows.length) return;
+	      if(ie && ie <= 9 && ! opts.tag) opts.tag = rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
+	      if(this.content_elem.children.length <= 1) this.html(rows[0] + rows[0] + rows[0]);
+	      if( ! opts.tag) opts.tag = this.content_elem.children[0].tagName.toLowerCase();
+	      this.getRowsHeight(rows);
+	    },
+	    getRowsHeight: function(rows) {
+	      var opts = this.options,
+	        prev_item_height = opts.item_height;
+	      opts.cluster_height = 0
+	      if( ! rows.length) return;
+	      var nodes = this.content_elem.children;
+	      var node = nodes[Math.floor(nodes.length / 2)];
+	      opts.item_height = node.offsetHeight;
+	      // consider table's border-spacing
+	      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
+	        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
+	      // consider margins (and margins collapsing)
+	      if(opts.tag != 'tr') {
+	        var marginTop = parseInt(getStyle('marginTop', node), 10) || 0;
+	        var marginBottom = parseInt(getStyle('marginBottom', node), 10) || 0;
+	        opts.item_height += Math.max(marginTop, marginBottom);
+	      }
+	      opts.block_height = opts.item_height * opts.rows_in_block;
+	      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
+	      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
+	      return prev_item_height != opts.item_height;
+	    },
+	    // get current cluster number
+	    getClusterNum: function () {
+	      this.options.scroll_top = this.scroll_elem.scrollTop;
+	      return Math.floor(this.options.scroll_top / (this.options.cluster_height - this.options.block_height)) || 0;
+	    },
+	    // generate empty row if no data provided
+	    generateEmptyRow: function() {
+	      var opts = this.options;
+	      if( ! opts.tag || ! opts.show_no_data_row) return [];
+	      var empty_row = document.createElement(opts.tag),
+	        no_data_content = document.createTextNode(opts.no_data_text), td;
+	      empty_row.className = opts.no_data_class;
+	      if(opts.tag == 'tr') {
+	        td = document.createElement('td');
+	        // fixes #53
+	        td.colSpan = 100;
+	        td.appendChild(no_data_content);
+	      }
+	      empty_row.appendChild(td || no_data_content);
+	      return [empty_row.outerHTML];
+	    },
+	    // generate cluster for current scroll position
+	    generate: function (rows, cluster_num) {
+	      var opts = this.options,
+	        rows_len = rows.length;
+	      if (rows_len < opts.rows_in_block) {
+	        return {
+	          top_offset: 0,
+	          bottom_offset: 0,
+	          rows_above: 0,
+	          rows: rows_len ? rows : this.generateEmptyRow()
+	        }
+	      }
+	      var items_start = Math.max((opts.rows_in_cluster - opts.rows_in_block) * cluster_num, 0),
+	        items_end = items_start + opts.rows_in_cluster,
+	        top_offset = Math.max(items_start * opts.item_height, 0),
+	        bottom_offset = Math.max((rows_len - items_end) * opts.item_height, 0),
+	        this_cluster_rows = [],
+	        rows_above = items_start;
+	      if(top_offset < 1) {
+	        rows_above++;
+	      }
+	      for (var i = items_start; i < items_end; i++) {
+	        rows[i] && this_cluster_rows.push(rows[i]);
+	      }
+	      return {
+	        top_offset: top_offset,
+	        bottom_offset: bottom_offset,
+	        rows_above: rows_above,
+	        rows: this_cluster_rows
+	      }
+	    },
+	    renderExtraTag: function(class_name, height) {
+	      var tag = document.createElement(this.options.tag),
+	        clusterize_prefix = 'clusterize-';
+	      tag.className = [clusterize_prefix + 'extra-row', clusterize_prefix + class_name].join(' ');
+	      height && (tag.style.height = height + 'px');
+	      return tag.outerHTML;
+	    },
+	    // if necessary verify data changed and insert to DOM
+	    insertToDOM: function(rows, cache) {
+	      // explore row's height
+	      if( ! this.options.cluster_height) {
+	        this.exploreEnvironment(rows);
+	      }
+	      var data = this.generate(rows, this.getClusterNum()),
+	        this_cluster_rows = data.rows.join(''),
+	        this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
+	        only_bottom_offset_changed = this.checkChanges('bottom', data.bottom_offset, cache),
+	        callbacks = this.options.callbacks,
+	        layout = [];
+	
+	      if(this_cluster_content_changed) {
+	        if(data.top_offset) {
+	          this.options.keep_parity && layout.push(this.renderExtraTag('keep-parity'));
+	          layout.push(this.renderExtraTag('top-space', data.top_offset));
+	        }
+	        layout.push(this_cluster_rows);
+	        data.bottom_offset && layout.push(this.renderExtraTag('bottom-space', data.bottom_offset));
+	        callbacks.clusterWillChange && callbacks.clusterWillChange();
+	        this.html(layout.join(''));
+	        this.options.content_tag == 'ol' && this.content_elem.setAttribute('start', data.rows_above);
+	        callbacks.clusterChanged && callbacks.clusterChanged();
+	      } else if(only_bottom_offset_changed) {
+	        this.content_elem.lastChild.style.height = data.bottom_offset + 'px';
+	      }
+	    },
+	    // unfortunately ie <= 9 does not allow to use innerHTML for table elements, so make a workaround
+	    html: function(data) {
+	      var content_elem = this.content_elem;
+	      if(ie && ie <= 9 && this.options.tag == 'tr') {
+	        var div = document.createElement('div'), last;
+	        div.innerHTML = '<table><tbody>' + data + '</tbody></table>';
+	        while((last = content_elem.lastChild)) {
+	          content_elem.removeChild(last);
+	        }
+	        var rows_nodes = this.getChildNodes(div.firstChild.firstChild);
+	        while (rows_nodes.length) {
+	          content_elem.appendChild(rows_nodes.shift());
+	        }
+	      } else {
+	        content_elem.innerHTML = data;
+	      }
+	    },
+	    getChildNodes: function(tag) {
+	        var child_nodes = tag.children, nodes = [];
+	        for (var i = 0, ii = child_nodes.length; i < ii; i++) {
+	            nodes.push(child_nodes[i]);
+	        }
+	        return nodes;
+	    },
+	    checkChanges: function(type, value, cache) {
+	      var changed = value != cache[type];
+	      cache[type] = value;
+	      return changed;
+	    }
+	  }
+	
+	  // support functions
+	  function on(evt, element, fnc) {
+	    return element.addEventListener ? element.addEventListener(evt, fnc, false) : element.attachEvent("on" + evt, fnc);
+	  }
+	  function off(evt, element, fnc) {
+	    return element.removeEventListener ? element.removeEventListener(evt, fnc, false) : element.detachEvent("on" + evt, fnc);
+	  }
+	  function isArray(arr) {
+	    return Object.prototype.toString.call(arr) === '[object Array]';
+	  }
+	  function getStyle(prop, elem) {
+	    return window.getComputedStyle ? window.getComputedStyle(elem)[prop] : elem.currentStyle[prop];
+	  }
+	
+	  return Clusterize;
+	}));
+
+/***/ },
+/* 196 */
+/***/ function(module, exports) {
+
+	module.exports = function(opts) {
+	  return new ElementClass(opts)
+	}
+	
+	function indexOf(arr, prop) {
+	  if (arr.indexOf) return arr.indexOf(prop)
+	  for (var i = 0, len = arr.length; i < len; i++)
+	    if (arr[i] === prop) return i
+	  return -1
+	}
+	
+	function ElementClass(opts) {
+	  if (!(this instanceof ElementClass)) return new ElementClass(opts)
+	  var self = this
+	  if (!opts) opts = {}
+	
+	  // similar doing instanceof HTMLElement but works in IE8
+	  if (opts.nodeType) opts = {el: opts}
+	
+	  this.opts = opts
+	  this.el = opts.el || document.body
+	  if (typeof this.el !== 'object') this.el = document.querySelector(this.el)
+	}
+	
+	ElementClass.prototype.add = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (el.className === "") return el.className = className
+	  var classes = el.className.split(' ')
+	  if (indexOf(classes, className) > -1) return classes
+	  classes.push(className)
+	  el.className = classes.join(' ')
+	  return classes
+	}
+	
+	ElementClass.prototype.remove = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (el.className === "") return
+	  var classes = el.className.split(' ')
+	  var idx = indexOf(classes, className)
+	  if (idx > -1) classes.splice(idx, 1)
+	  el.className = classes.join(' ')
+	  return classes
+	}
+	
+	ElementClass.prototype.has = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  var classes = el.className.split(' ')
+	  return indexOf(classes, className) > -1
+	}
+	
+	ElementClass.prototype.toggle = function(className) {
+	  var el = this.el
+	  if (!el) return
+	  if (this.has(className)) this.remove(className)
+	  else this.add(className)
+	}
+
+
+/***/ },
+/* 197 */
+/***/ function(module, exports) {
+
+	module.exports = isNode
+	
+	function isNode (val) {
+	  return (!val || typeof val !== 'object')
+	    ? false
+	    : (typeof window === 'object' && typeof window.Node === 'object')
+	      ? (val instanceof window.Node)
+	      : (typeof val.nodeType === 'number') &&
+	        (typeof val.nodeName === 'string')
+	}
+
+
+/***/ },
+/* 198 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports.Node = exports.flatten = undefined;
+	
+	var _flatten = __webpack_require__(199);
+	
+	var _flatten2 = _interopRequireDefault(_flatten);
+	
+	var _node = __webpack_require__(201);
+	
+	var _node2 = _interopRequireDefault(_node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	// IE8 compatibility output
+	exports.flatten = _flatten2['default'];
+	exports.Node = _node2['default'];
+
+/***/ },
+/* 199 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	
+	var _extend = __webpack_require__(200);
+	
+	var _extend2 = _interopRequireDefault(_extend);
+	
+	var _node = __webpack_require__(201);
+	
+	var _node2 = _interopRequireDefault(_node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	// @param {object|array} nodes The tree nodes
+	// @param {object} [options] The options object
+	// @param {boolean} [options.openAllNodes] True to open all nodes. Defaults to false.
+	// @param {array} [options.openNodes] An array that contains the ids of open nodes
+	// @return {array}
+	/* eslint no-console: 0 */
+	var flatten = function flatten() {
+	    var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+	
+	    nodes = [].concat(nodes);
+	
+	    var flatten = [];
+	    var stack = [];
+	    var pool = {
+	        lastChild: {}
+	    };
+	
+	    options.openAllNodes = !!options.openAllNodes;
+	    options.openNodes = options.openNodes || [];
+	    options.throwOnError = !!options.throwOnError;
+	
+	    {
+	        // root node
+	        var firstNode = nodes.length > 0 ? nodes[0] : null;
+	        var parentNode = firstNode ? firstNode.parent : null;
+	        if (parentNode && !(parentNode instanceof _node2['default'])) {
+	            parentNode = new _node2['default'](parentNode);
+	        }
+	        var rootNode = parentNode || new _node2['default']({ // defaults
+	            parent: null,
+	            children: nodes,
+	            state: {
+	                depth: -1,
+	                open: true, // always open
+	                path: '',
+	                prefixMask: '',
+	                total: 0
+	            }
+	        });
+	
+	        if (rootNode === parentNode) {
+	            var subtotal = rootNode.state.total || 0;
+	
+	            // Traversing up through its ancestors
+	            var p = rootNode;
+	            while (p) {
+	                var _p$state = p.state,
+	                    path = _p$state.path,
+	                    _p$state$total = _p$state.total,
+	                    total = _p$state$total === undefined ? 0 : _p$state$total;
+	
+	                // Rebuild the lastChild pool
+	
+	                if (p.isLastChild() && path) {
+	                    pool.lastChild[path] = true;
+	                }
+	
+	                // Subtract the number 'subtotal' from the total of the root node and all its ancestors
+	                p.state.total = total - subtotal;
+	                if (p.state.total < 0) {
+	                    if (options.throwOnError) {
+	                        throw new Error('The node might have been corrupted: id=' + JSON.stringify(p.id) + ', state=' + JSON.stringify(p.state));
+	                    } else {
+	                        console && console.log('Error: The node might have been corrupted: id=%s, parent=%s, children=%s, state=%s', JSON.stringify(p.id), p.parent, p.children, JSON.stringify(p.state));
+	                    }
+	                }
+	
+	                p = p.parent;
+	            }
+	        }
+	
+	        stack.push([rootNode, rootNode.state.depth, 0]);
+	    }
+	
+	    while (stack.length > 0) {
+	        var _stack$pop = stack.pop(),
+	            current = _stack$pop[0],
+	            depth = _stack$pop[1],
+	            index = _stack$pop[2];
+	
+	        var _loop = function _loop() {
+	            var node = current.children[index];
+	            if (!(node instanceof _node2['default'])) {
+	                node = new _node2['default'](node);
+	            }
+	            node.parent = current;
+	            node.children = node.children || [];
+	
+	            // Ensure parent.children[index] is equal to the current node
+	            node.parent.children[index] = node;
+	
+	            var path = current.state.path + '.' + index;
+	            var open = node.hasChildren() && function () {
+	                var openAllNodes = options.openAllNodes,
+	                    openNodes = options.openNodes;
+	
+	                if (openAllNodes) {
+	                    return true;
+	                }
+	                // determine by node object
+	                if (openNodes.indexOf(node) >= 0) {
+	                    return true;
+	                }
+	                // determine by node id
+	                if (openNodes.indexOf(node.id) >= 0) {
+	                    return true;
+	                }
+	                return false;
+	            }();
+	            var prefixMask = function (prefix) {
+	                var mask = '';
+	                while (prefix.length > 0) {
+	                    prefix = prefix.replace(/\.\d+$/, '');
+	                    if (!prefix || pool.lastChild[prefix]) {
+	                        mask = '0' + mask;
+	                    } else {
+	                        mask = '1' + mask;
+	                    }
+	                }
+	                return mask;
+	            }(path);
+	
+	            if (node.isLastChild()) {
+	                pool.lastChild[path] = true;
+	            }
+	
+	            // This allows you to put extra information to node.state
+	            node.state = (0, _extend2['default'])({}, node.state, {
+	                depth: depth + 1,
+	                open: open,
+	                path: path,
+	                prefixMask: prefixMask,
+	                total: 0
+	            });
+	
+	            var parentDidOpen = true;
+	
+	            {
+	                // Check the open state from its ancestors
+	                var _p = node;
+	                while (_p.parent !== null) {
+	                    if (_p.parent.state.open === false) {
+	                        parentDidOpen = false;
+	                        break;
+	                    }
+	                    _p = _p.parent;
+	                }
+	            }
+	
+	            if (parentDidOpen) {
+	                // Push the node to flatten list only if all of its parent nodes have the open state set to true
+	                flatten.push(node);
+	
+	                // Update the total number of visible child nodes
+	                var _p2 = node;
+	                while (_p2.parent !== null) {
+	                    _p2.parent.state.total++;
+	                    _p2 = _p2.parent;
+	                }
+	            }
+	
+	            ++index;
+	
+	            if (node.hasChildren()) {
+	                // Push back parent node to the stack that will be able to continue
+	                // the next iteration once all the child nodes of the current node
+	                // have been completely explored.
+	                stack.push([current, depth, index]);
+	
+	                index = 0;
+	                depth = depth + 1;
+	                current = node;
+	            }
+	        };
+	
+	        while (index < current.children.length) {
+	            _loop();
+	        }
+	    }
+	
+	    return flatten;
+	};
+	
+	exports['default'] = flatten;
+
+/***/ },
+/* 200 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	/* eslint no-restricted-syntax: 0 */
+	var extend = function extend(target) {
+	    for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        sources[_key - 1] = arguments[_key];
+	    }
+	
+	    if (target === undefined || target === null) {
+	        throw new TypeError('Cannot convert undefined or null to object');
+	    }
+	
+	    var output = Object(target);
+	    for (var index = 0; index < sources.length; index++) {
+	        var source = sources[index];
+	        if (source !== undefined && source !== null) {
+	            for (var key in source) {
+	                if (source.hasOwnProperty(key)) {
+	                    output[key] = source[key];
+	                }
+	            }
+	        }
+	    }
+	    return output;
+	};
+	
+	exports['default'] = extend;
+
+/***/ },
+/* 201 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	
+	var _extend = __webpack_require__(200);
+	
+	var _extend2 = _interopRequireDefault(_extend);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var Node = function () {
+	    function Node(node) {
+	        _classCallCheck(this, Node);
+	
+	        this.id = null;
+	        this.parent = null;
+	        this.children = [];
+	        this.state = {};
+	
+	        (0, _extend2['default'])(this, node);
+	
+	        this.children = this.children || [];
+	    }
+	    // Returns a boolean value indicating whether a node is a descendant of a given node or not.
+	    // @param {object} node Specifies the node that may be contained by (a descendant of) a specified node.
+	    // @return {boolean} Returns true if a node is a descendant of a specified node, otherwise false. A descendant can be a child, grandchild, great-grandchild, and so on.
+	
+	
+	    Node.prototype.contains = function contains(node) {
+	        while (node instanceof Node && node !== this) {
+	            if (node.parent === this) {
+	                return true;
+	            }
+	            node = node.parent;
+	        }
+	        return false;
+	    };
+	    // Gets a child node at the specified index.
+	    // @param {number} The index of the child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getChildAt = function getChildAt(index) {
+	        var node = null;
+	        if (this.children.length > 0 && index >= 0 && index < this.children.length) {
+	            node = this.children[index];
+	        }
+	        return node;
+	    };
+	    // Gets the child nodes.
+	    // @return {array} Returns an array of objects that define the nodes.
+	
+	
+	    Node.prototype.getChildren = function getChildren() {
+	        return this.children;
+	    };
+	    // Gets the first child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getFirstChild = function getFirstChild() {
+	        var node = null;
+	        if (this.children.length > 0) {
+	            node = this.children[0];
+	        }
+	        return node;
+	    };
+	    // Gets the last child node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getLastChild = function getLastChild() {
+	        var node = null;
+	        if (this.children.length > 0) {
+	            node = this.children[this.children.length - 1];
+	        }
+	        return node;
+	    };
+	    // Gets the next sibling node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getNextSibling = function getNextSibling() {
+	        var node = null;
+	        if (this.parent) {
+	            var index = this.parent.children.indexOf(this);
+	            if (index >= 0 && index < this.parent.children.length - 1) {
+	                node = this.parent.children[index + 1];
+	            }
+	        }
+	        return node;
+	    };
+	    // Gets the parent node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getParent = function getParent() {
+	        return this.parent;
+	    };
+	    // Gets the previous sibling node.
+	    // @return {object} Returns an object that defines the node, null otherwise.
+	
+	
+	    Node.prototype.getPreviousSibling = function getPreviousSibling() {
+	        var node = null;
+	        if (this.parent) {
+	            var index = this.parent.children.indexOf(this);
+	            if (index > 0 && index < this.parent.children.length) {
+	                node = this.parent.children[index - 1];
+	            }
+	        }
+	        return node;
+	    };
+	    // Checks whether this node has children.
+	    // @return {boolean} Returns true if the node has children, false otherwise.
+	
+	
+	    Node.prototype.hasChildren = function hasChildren() {
+	        return this.children.length > 0;
+	    };
+	    // Checks whether this node is the last child of its parent.
+	    // @return {boolean} Returns true if the node is the last child of its parent, false otherwise.
+	
+	
+	    Node.prototype.isLastChild = function isLastChild() {
+	        var hasNextSibling = this.getNextSibling();
+	        return !hasNextSibling;
+	    };
+	
+	    return Node;
+	}();
+	
+	exports['default'] = Node;
+
+/***/ },
+/* 202 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	exports.__esModule = true;
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var LookupTable = function () {
+	    function LookupTable() {
+	        _classCallCheck(this, LookupTable);
+	
+	        this.data = {};
+	    }
+	
+	    LookupTable.prototype.clear = function clear() {
+	        this.data = {};
+	    };
+	
+	    LookupTable.prototype.get = function get(key) {
+	        return this.data[key];
+	    };
+	
+	    LookupTable.prototype.has = function has(key) {
+	        return this.data[key] !== undefined;
+	    };
+	
+	    LookupTable.prototype.set = function set(key, value) {
+	        this.data[key] = value;
+	        return value;
+	    };
+	
+	    LookupTable.prototype.unset = function unset(key) {
+	        if (this.data[key] !== undefined) {
+	            delete this.data[key];
+	        }
+	    };
+	
+	    return LookupTable;
+	}();
+	
+	exports["default"] = LookupTable;
+
+/***/ },
+/* 203 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports.defaultRowRenderer = undefined;
+	
+	var _classnames = __webpack_require__(194);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _escapeHtml = __webpack_require__(204);
+	
+	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
+	
+	var _html5Tag = __webpack_require__(205);
+	
+	var _html5Tag2 = _interopRequireDefault(_html5Tag);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+	
+	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
+	    var id = node.id,
+	        name = node.name,
+	        _node$loadOnDemand = node.loadOnDemand,
+	        loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
+	        children = node.children,
+	        state = node.state;
+	
+	    var droppable = treeOptions.droppable;
+	    var depth = state.depth,
+	        open = state.open,
+	        path = state.path,
+	        total = state.total,
+	        _state$selected = state.selected,
+	        selected = _state$selected === undefined ? false : _state$selected;
+	
+	    var childrenLength = Object.keys(children).length;
+	    var more = node.hasChildren();
+	
+	    var togglerContent = '';
+	    if (!more && loadOnDemand) {
+	        togglerContent = '►';
+	    }
+	    if (more && open) {
+	        togglerContent = '▼';
+	    }
+	    if (more && !open) {
+	        togglerContent = '►';
+	    }
+	    var toggler = (0, _html5Tag2['default'])('a', {
+	        'class': function () {
+	            if (!more && loadOnDemand) {
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
+	            }
+	            if (more && open) {
+	                return (0, _classnames2['default'])(treeOptions.togglerClass);
+	            }
+	            if (more && !open) {
+	                return (0, _classnames2['default'])(treeOptions.togglerClass, 'infinite-tree-closed');
+	            }
+	            return '';
+	        }()
+	    }, togglerContent);
+	    var title = (0, _html5Tag2['default'])('span', {
+	        'class': (0, _classnames2['default'])('infinite-tree-title')
+	    }, (0, _escapeHtml2['default'])(name));
+	    var treeNode = (0, _html5Tag2['default'])('div', {
+	        'class': 'infinite-tree-node',
+	        'style': 'margin-left: ' + depth * 18 + 'px'
+	    }, toggler + title);
+	
+	    return (0, _html5Tag2['default'])('div', {
+	        'data-id': id,
+	        'data-expanded': more && open,
+	        'data-depth': depth,
+	        'data-path': path,
+	        'data-selected': selected,
+	        'data-children': childrenLength,
+	        'data-total': total,
+	        'class': (0, _classnames2['default'])('infinite-tree-item', { 'infinite-tree-selected': selected }),
+	        'droppable': droppable
+	    }, treeNode);
+	}; /* eslint import/prefer-default-export: 0 */
+	exports.defaultRowRenderer = defaultRowRenderer;
+
+/***/ },
+/* 204 */
+/***/ function(module, exports) {
+
+	/*!
+	 * escape-html
+	 * Copyright(c) 2012-2013 TJ Holowaychuk
+	 * Copyright(c) 2015 Andreas Lubbe
+	 * Copyright(c) 2015 Tiancheng "Timothy" Gu
+	 * MIT Licensed
+	 */
+	
+	'use strict';
+	
+	/**
+	 * Module variables.
+	 * @private
+	 */
+	
+	var matchHtmlRegExp = /["'&<>]/;
+	
+	/**
+	 * Module exports.
+	 * @public
+	 */
+	
+	module.exports = escapeHtml;
+	
+	/**
+	 * Escape special characters in the given string of html.
+	 *
+	 * @param  {string} string The string to escape for inserting into HTML
+	 * @return {string}
+	 * @public
+	 */
+	
+	function escapeHtml(string) {
+	  var str = '' + string;
+	  var match = matchHtmlRegExp.exec(str);
+	
+	  if (!match) {
+	    return str;
+	  }
+	
+	  var escape;
+	  var html = '';
+	  var index = 0;
+	  var lastIndex = 0;
+	
+	  for (index = match.index; index < str.length; index++) {
+	    switch (str.charCodeAt(index)) {
+	      case 34: // "
+	        escape = '&quot;';
+	        break;
+	      case 38: // &
+	        escape = '&amp;';
+	        break;
+	      case 39: // '
+	        escape = '&#39;';
+	        break;
+	      case 60: // <
+	        escape = '&lt;';
+	        break;
+	      case 62: // >
+	        escape = '&gt;';
+	        break;
+	      default:
+	        continue;
+	    }
+	
+	    if (lastIndex !== index) {
+	      html += str.substring(lastIndex, index);
+	    }
+	
+	    lastIndex = index + 1;
+	    html += escape;
+	  }
+	
+	  return lastIndex !== index
+	    ? html + str.substring(lastIndex, index)
+	    : html;
+	}
+
+
+/***/ },
+/* 205 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	
+	var _escapeHtml = __webpack_require__(204);
+	
+	var _escapeHtml2 = _interopRequireDefault(_escapeHtml);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// https://www.w3.org/TR/html5/syntax.html#void-elements
+	// Void elements only have a start tag; end tags must not be specified for void elements.
+	var voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+	
+	// @param {string} [tag] The tag name. Defaults to 'div'.
+	// @param {object} attrs HTML attributes.
+	// @param {string} [text] The content string.
+	module.exports = function (tag, attrs, text) {
+	    if ((typeof tag === 'undefined' ? 'undefined' : _typeof(tag)) === 'object') {
+	        text = attrs;
+	        attrs = tag;
+	        tag = 'div';
+	    }
+	
+	    var voidElement = voidElements.indexOf(('' + tag).toLowerCase()) >= 0;
+	    var html = '<' + tag;
+	
+	    attrs = _extends({}, attrs);
+	    Object.keys(attrs).forEach(function (name) {
+	        var value = attrs[name];
+	        if (typeof value === 'string') {
+	            value = (0, _escapeHtml2.default)('' + value);
+	            html += ' ' + name + '="' + value + '"';
+	        } else if (!!value) {
+	            html += ' ' + name;
+	        }
+	    });
+	
+	    if (voidElement) {
+	        html += '>';
+	    } else if (text !== undefined) {
+	        html += '>' + text + '</' + tag + '>';
+	    } else {
+	        html += '/>';
+	    }
+	
+	    return html;
+	};
+
+/***/ },
+/* 206 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	var preventDefault = function preventDefault(e) {
+	    if (typeof e.preventDefault !== 'undefined') {
+	        e.preventDefault();
+	    } else {
+	        e.returnValue = false;
+	    }
+	};
+	
+	var stopPropagation = function stopPropagation(e) {
+	    if (typeof e.stopPropagation !== 'undefined') {
+	        e.stopPropagation();
+	    } else {
+	        e.cancelBubble = true;
+	    }
+	};
+	
+	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Compatibility
+	var addEventListener = function addEventListener(target, type, listener) {
+	    if (target.addEventListener) {
+	        // Standard
+	        target.addEventListener(type, listener, false);
+	    } else if (target.attachEvent) {
+	        // IE8
+	        // In Internet Explorer versions before IE 9, you have to use attachEvent rather than the standard addEventListener.
+	        target.attachEvent('on' + type, listener);
+	    }
+	};
+	
+	// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
+	var removeEventListener = function removeEventListener(target, type, listener) {
+	    if (target.removeEventListener) {
+	        // Standard
+	        target.removeEventListener(type, listener, false);
+	    } else if (target.detachEvent) {
+	        // IE8
+	        // In Internet Explorer versions before IE 9, you have to use detachEvent rather than the standard removeEventListener.
+	        target.detachEvent('on' + type, listener);
+	    }
+	};
+	
+	exports.preventDefault = preventDefault;
+	exports.stopPropagation = stopPropagation;
+	exports.addEventListener = addEventListener;
+	exports.removeEventListener = removeEventListener;
+
+/***/ },
+/* 207 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.defaultRowRenderer = undefined;
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(194);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/* eslint react/jsx-indent: 0 */
+	
+	
+	var defaultRowRenderer = function defaultRowRenderer(node, treeOptions) {
+	    var id = node.id;
+	    var name = node.name;
+	    var _node$loadOnDemand = node.loadOnDemand;
+	    var loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand;
+	    var children = node.children;
+	    var state = node.state;
+	
+	    var droppable = treeOptions.droppable;
+	    var depth = state.depth;
+	    var open = state.open;
+	    var path = state.path;
+	    var total = state.total;
+	    var _state$selected = state.selected;
+	    var selected = _state$selected === undefined ? false : _state$selected;
+	
+	    var childrenLength = Object.keys(children).length;
+	    var more = node.hasChildren();
+	
+	    return _react2.default.createElement(
+	        'div',
+	        {
+	            className: (0, _classnames2.default)('infinite-tree-item', { 'infinite-tree-selected': selected }),
+	            'data-id': id,
+	            'data-expanded': more && open,
+	            'data-depth': depth,
+	            'data-path': path,
+	            'data-selected': selected,
+	            'data-children': childrenLength,
+	            'data-total': total,
+	            droppable: droppable
+	        },
+	        _react2.default.createElement(
+	            'div',
+	            {
+	                className: 'infinite-tree-node',
+	                style: { marginLeft: depth * 18 }
+	            },
+	            !more && loadOnDemand && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                '►'
+	            ),
+	            more && open && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass) },
+	                '▼'
+	            ),
+	            more && !open && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                '►'
+	            ),
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'infinite-tree-title' },
+	                name
+	            )
+	        )
+	    );
+	};
+	
+	exports.defaultRowRenderer = defaultRowRenderer;
+
+/***/ },
+/* 208 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+	
+	// load the styles
+	var content = __webpack_require__(209);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(183)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../node_modules/css-loader/index.js?-autoprefixer&camelCase&modules&importLoaders=1&localIdentName=[hash:base64:5]!./../node_modules/stylus-loader/index.js!./../node_modules/stylint-loader/index.js!./index.styl", function() {
+				var newContent = require("!!./../node_modules/css-loader/index.js?-autoprefixer&camelCase&modules&importLoaders=1&localIdentName=[hash:base64:5]!./../node_modules/stylus-loader/index.js!./../node_modules/stylint-loader/index.js!./index.styl");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 209 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(182)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "@font-face {\n  font-family: \"icomoon\";\n  src: url(\"data:application/x-font-ttf;charset=utf-8;base64,AAEAAAALAIAAAwAwT1MvMg8SBygAAAC8AAAAYGNtYXDTy9QDAAABHAAAAGxnYXNwAAAAEAAAAYgAAAAIZ2x5ZjHb+ZcAAAGQAAAB/GhlYWQMR1odAAADjAAAADZoaGVhB8IDygAAA8QAAAAkaG10eBoAAEAAAAPoAAAAJGxvY2EBjgIyAAAEDAAAABRtYXhwAA0AOgAABCAAAAAgbmFtZZlKCfsAAARAAAABhnBvc3QAAwAAAAAFyAAAACAAAwOrAZAABQAAApkCzAAAAI8CmQLMAAAB6wAzAQkAAAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAAAAAAAABAAADqUwPA/8AAQAPAAEAAAAABAAAAAAAAAAAAAAAgAAAAAAADAAAAAwAAABwAAQADAAAAHAADAAEAAAAcAAQAUAAAABAAEAADAAAAAQAg6STpMOoR6lP//f//AAAAAAAg6STpMOoR6lL//f//AAH/4xbgFtUV9RW1AAMAAQAAAAAAAAAAAAAAAAAAAAAAAQAB//8ADwABAAAAAAAAAAAAAgAANzkBAAAAAAEAAAAAAAAAAAACAAA3OQEAAAAAAQAAAAAAAAAAAAIAADc5AQAAAAADAED/wAPAA8AAGQAhADcAAAEuAScuAScuASMhIgYVERQWMyEyNjURNCYnJx4BFyM1HgETFAYjISImNRE0NjMwOgIxFRQWOwEDlhEtGRozFycpC/4QIS8vIQLgIS8OHIUXJQ2aESmGCQf9IAcJCQebupsTDeAC2xczGhktERwOLyH8oCEvLyECcAspJzYXKRGaDSX86AcJCQcDYAcJ4A0TAAAAAAIAAAAABAADQAADAAoAACUTIQMTAxEhFyEVA0DA/MDAgIABIIABoAACAP4AAkD9wANAgIAAAAAAAgAAACoEAANWAAYADQAAJQE3FwEXAQkCJwEnBwGN/nPFyAGuxf2N/t8BIQIHWf5SyFkqAYjCxQGnw/2XAYj+4wH+WP5ZxlgAAgAA/8AEAAPAAA8AFQAAASEiBhURFBYzITI2NRE0JgEnNxcBFwOA/QA1S0s1AwA1S0v+C+1akwEzWgPASzX9ADVLSzUDADVL/OXuWpIBMloAAAAAAgAA/8AEAAPAAA8AEwAAASEiBhURFBYzITI2NRE0JgMhESEDgP0ANUtLNQMANUtLNf0AAwADwEs1/QA1S0s1AwA1S/yAAwAAAQAAAAEAAILfk2dfDzz1AAsEAAAAAADUlArQAAAAANSUCtAAAP/ABAADwAAAAAgAAgAAAAAAAAABAAADwP/AAAAEAAAAAAAEAAABAAAAAAAAAAAAAAAAAAAACQQAAAAAAAAAAAAAAAIAAAAEAABABAAAAAQAAAAEAAAABAAAAAAAAAAACgAUAB4AcACMALAA2gD+AAEAAAAJADgAAwAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAOAK4AAQAAAAAAAQAHAAAAAQAAAAAAAgAHAGAAAQAAAAAAAwAHADYAAQAAAAAABAAHAHUAAQAAAAAABQALABUAAQAAAAAABgAHAEsAAQAAAAAACgAaAIoAAwABBAkAAQAOAAcAAwABBAkAAgAOAGcAAwABBAkAAwAOAD0AAwABBAkABAAOAHwAAwABBAkABQAWACAAAwABBAkABgAOAFIAAwABBAkACgA0AKRpY29tb29uAGkAYwBvAG0AbwBvAG5WZXJzaW9uIDEuMABWAGUAcgBzAGkAbwBuACAAMQAuADBpY29tb29uAGkAYwBvAG0AbwBvAG5pY29tb29uAGkAYwBvAG0AbwBvAG5SZWd1bGFyAFIAZQBnAHUAbABhAHJpY29tb29uAGkAYwBvAG0AbwBvAG5Gb250IGdlbmVyYXRlZCBieSBJY29Nb29uLgBGAG8AbgB0ACAAZwBlAG4AZQByAGEAdABlAGQAIABiAHkAIABJAGMAbwBNAG8AbwBuAC4AAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\") format('truetype');\n  font-weight: normal;\n  font-style: normal;\n}\n[class^=\"icon-\"],\n[class*=\" icon-\"] {\n/* use !important to prevent issues with browser extensions that change fonts */\n  font-family: 'icomoon' !important;\n  speak: none;\n  font-style: normal;\n  font-weight: normal;\n  font-variant: normal;\n  text-transform: none;\n  line-height: 1;\n/* Better Font Rendering =========== */\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\ni {\n  padding-left: 2px;\n  padding-right: 4px;\n}\n.icon-file-empty:before {\n  content: \"\\E924\";\n}\n.icon-folder-open:before {\n  content: \"\\E930\";\n}\n.icon-checkmark2:before {\n  content: \"\\EA11\";\n}\n.icon-checkbox-checked,\n.icon-checkmark2 {\n  color: #6e88d8;\n}\n.icon-checkmark2 {\n  color: #003fff;\n}\n.icon-checkbox-checked:before {\n  content: \"\\EA52\";\n}\n.icon-checkbox-unchecked:before {\n  content: \"\\EA53\";\n}\n.controls {\n  display: -webkit-box;\n  display: -moz-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: box;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -moz-box-orient: vertical;\n  -o-box-orient: vertical;\n  -webkit-flex-direction: column;\n  -ms-flex-direction: column;\n  flex-direction: column;\n}\n", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 210 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _classnames = __webpack_require__(194);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _reactInfiniteTree = __webpack_require__(186);
+	
+	var _reactInfiniteTree2 = _interopRequireDefault(_reactInfiniteTree);
+	
+	__webpack_require__(180);
+	
+	__webpack_require__(208);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var BlockListTree = function (_React$Component) {
+	    _inherits(BlockListTree, _React$Component);
+	
+	    function BlockListTree(props) {
+	        _classCallCheck(this, BlockListTree);
+	
+	        var _this = _possibleConstructorReturn(this, (BlockListTree.__proto__ || Object.getPrototypeOf(BlockListTree)).call(this, props));
+	
+	        _this.handleFilter = _this.handleFilter.bind(_this);
+	        _this.getCheckedNodes = _this.getCheckedNodes.bind(_this);
+	        return _this;
+	    }
+	
+	    _createClass(BlockListTree, [{
+	        key: 'componentDidMount',
+	        value: function componentDidMount() {
+	            this.tree.loadData(this.props.data);
+	        }
+	    }, {
+	        key: 'componentWillReceiveProps',
+	        value: function componentWillReceiveProps(nextProps) {
+	            this.tree.loadData(nextProps.data);
+	        }
+	    }, {
+	        key: 'handleFilter',
+	        value: function handleFilter(event) {
+	            var searchKeyword = event.target.value.toLowerCase();
+	
+	            this.tree.nodes.forEach(function (node) {
+	                node.props = node.props || {};
+	
+	                if (node.props.label.toLowerCase().indexOf(searchKeyword) < 0 && searchKeyword !== '' && node.id !== 'selectedRoot') {
+	                    node.props.isFiltered = false;
+	                    return;
+	                }
+	
+	                while (node && node.parent) {
+	                    node.props.isFiltered = true;
+	                    node = node.parent;
+	                }
+	            });
+	            this.tree.loadData(this.props.data);
+	        }
+	    }, {
+	        key: 'getCheckedNodes',
+	        value: function getCheckedNodes() {
+	            var checkedNodes = this.tree.nodes.filter(function (node) {
+	                if (node.props.checked === true && !node.hasChildren()) {
+	                    return true;
+	                }
+	                return false;
+	            });
+	            return checkedNodes;
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var _this2 = this;
+	
+	            return _react2.default.createElement(
+	                'div',
+	                null,
+	                _react2.default.createElement('input', {
+	                    type: 'text',
+	                    onChange: this.handleFilter,
+	                    style: { width: '100%' },
+	                    placeholder: 'Search...'
+	                }),
+	                _react2.default.createElement(_reactInfiniteTree2.default, {
+	                    ref: function ref(c) {
+	                        if (c) {
+	                            _this2.tree = c.tree;
+	                        }
+	                    },
+	                    autoOpen: true,
+	                    rowRenderer: function rowRenderer(node, treeOptions) {
+	                        var id = node.id,
+	                            _node$loadOnDemand = node.loadOnDemand,
+	                            loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
+	                            state = node.state,
+	                            _node$props = node.props,
+	                            props = _node$props === undefined ? {} : _node$props;
+	                        var depth = state.depth,
+	                            open = state.open;
+	                        var _props$checked = props.checked,
+	                            checked = _props$checked === undefined ? false : _props$checked,
+	                            _props$isFiltered = props.isFiltered,
+	                            isFiltered = _props$isFiltered === undefined ? true : _props$isFiltered;
+	
+	                        var more = node.hasChildren();
+	                        var style = void 0;
+	
+	                        if (!isFiltered) {
+	                            return _react2.default.createElement('div', {
+	                                'data-id': id,
+	                                style: { display: 'none' }
+	                            });
+	                        }
+	
+	                        if (checked === 'partial') {
+	                            style = 'icon-checkbox-checked';
+	                        } else {
+	                            style = checked ? 'icon-checkmark2' : 'icon-checkbox-unchecked';
+	                        }
+	
+	                        return _react2.default.createElement(
+	                            'div',
+	                            {
+	                                className: (0, _classnames2.default)('infinite-tree-item', { 'infinite-tree-selected': checked }),
+	                                'data-id': id
+	                            },
+	                            _react2.default.createElement(
+	                                'div',
+	                                {
+	                                    className: 'infinite-tree-node',
+	                                    style: { marginLeft: depth * 18 }
+	                                },
+	                                !more && loadOnDemand && _react2.default.createElement(
+	                                    'a',
+	                                    { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                                    '\u25BA'
+	                                ),
+	                                more && open && _react2.default.createElement(
+	                                    'a',
+	                                    { className: (0, _classnames2.default)(treeOptions.togglerClass) },
+	                                    '\u25BC'
+	                                ),
+	                                more && !open && _react2.default.createElement(
+	                                    'a',
+	                                    { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                                    '\u25BA'
+	                                ),
+	                                _react2.default.createElement('i', { className: style, 'aria-hidden': 'true' }),
+	                                _react2.default.createElement(
+	                                    'span',
+	                                    { className: 'infinite-tree-title' },
+	                                    props.label
+	                                )
+	                            )
+	                        );
+	                    },
+	                    selectable: true,
+	                    shouldSelectNode: function shouldSelectNode(rootNode) {
+	                        var more = rootNode.hasChildren();
+	
+	                        var recursiveUpdate = function recursiveUpdate(node) {
+	                            var more = node.hasChildren();
+	
+	                            node.props.checked = rootNode.props.checked;
+	
+	                            if (more) {
+	                                node.children.forEach(function (child) {
+	                                    recursiveUpdate(child);
+	                                });
+	                            }
+	                        };
+	
+	                        if (rootNode.props.checked === 'partial' || rootNode.props.checked === false || rootNode.props.checked === undefined) {
+	                            rootNode.props.checked = true;
+	                        } else {
+	                            rootNode.props.checked = false;
+	                        }
+	
+	                        if (more) {
+	                            recursiveUpdate(rootNode);
+	                        }
+	
+	                        var changeParentChecked = function changeParentChecked(parent) {
+	                            var childrenLength = parent.children.length;
+	                            var checkedChildren = 0;
+	                            var checked = void 0;
+	
+	                            var isPartial = parent.children.find(function (child) {
+	                                return child.props.checked === 'partial';
+	                            });
+	
+	                            parent.children.forEach(function (child) {
+	                                if (child.props.checked) {
+	                                    checkedChildren++;
+	                                }
+	                            });
+	
+	                            parent.children.find(function (child) {
+	                                return child.props.checked === 'partial';
+	                            });
+	
+	                            if (checkedChildren > 0 && checkedChildren < childrenLength || isPartial) {
+	                                checked = 'partial';
+	                            } else if (checkedChildren === 0) {
+	                                checked = false;
+	                            } else {
+	                                checked = true;
+	                            }
+	
+	                            return checked;
+	                        };
+	
+	                        var recursiveParentChange = function recursiveParentChange(parent, child) {
+	                            parent.props.checked = changeParentChecked(parent);
+	                            if (parent.state.depth !== 0) {
+	                                recursiveParentChange(parent.parent, parent);
+	                            } else {
+	                                _this2.tree.updateNode(parent);
+	                            }
+	                        };
+	
+	                        if (rootNode.state.depth !== 0) {
+	                            recursiveParentChange(rootNode.parent, rootNode);
+	                        } else {
+	                            _this2.tree.updateNode(rootNode);
+	                        }
+	
+	                        return false;
+	                    }
+	                })
+	            );
+	        }
+	    }]);
+	
+	    return BlockListTree;
+	}(_react2.default.Component);
+	
+	exports.default = BlockListTree;
+	
+	
+	BlockListTree.propTypes = {
+	    data: _react2.default.PropTypes.object,
+	    isFiltered: _react2.default.PropTypes.bool,
+	    checked: _react2.default.PropTypes.oneOfType([_react2.default.PropTypes.string, _react2.default.PropTypes.bool])
+	};
+
+/***/ },
+/* 211 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _classnames = __webpack_require__(194);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
+	var _react = __webpack_require__(1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var rowRenderer = function rowRenderer(node, treeOptions) {
+	    var id = node.id,
+	        state = node.state,
+	        _node$loadOnDemand = node.loadOnDemand,
+	        loadOnDemand = _node$loadOnDemand === undefined ? false : _node$loadOnDemand,
+	        _node$props = node.props,
+	        props = _node$props === undefined ? {} : _node$props;
+	    var depth = state.depth,
+	        open = state.open;
+	    var _props$checked = props.checked,
+	        checked = _props$checked === undefined ? false : _props$checked,
+	        _props$loading = props.loading,
+	        loading = _props$loading === undefined ? false : _props$loading;
+	
+	    var more = node.hasChildren();
+	
+	    if (node.id === 'availableRoot') {
+	        return _react2.default.createElement('div', {
+	            'data-id': id,
+	            style: { display: 'none' }
+	        });
+	    }
+	
+	    var style = void 0;
+	    if (checked === 'partial') {
+	        style = 'icon-checkbox-checked';
+	    } else {
+	        style = checked ? 'icon-checkmark2' : 'icon-checkbox-unchecked';
+	    }
+	
+	    return _react2.default.createElement(
+	        'div',
+	        {
+	            className: (0, _classnames2.default)('infinite-tree-item', { 'infinite-tree-selected': checked }),
+	            'data-id': id
+	        },
+	        _react2.default.createElement(
+	            'div',
+	            {
+	                className: 'infinite-tree-node',
+	                style: { marginLeft: depth * 18 }
+	            },
+	            !more && loadOnDemand && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                '\u25BA'
+	            ),
+	            more && open && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass) },
+	                '\u25BC'
+	            ),
+	            more && !open && _react2.default.createElement(
+	                'a',
+	                { className: (0, _classnames2.default)(treeOptions.togglerClass, 'infinite-tree-closed') },
+	                '\u25BA'
+	            ),
+	            _react2.default.createElement('i', { className: style, 'aria-hidden': 'true' }),
+	            loadOnDemand && loading && _react2.default.createElement('span', { className: 'glyphicon glyphicon-refresh' }),
+	            _react2.default.createElement(
+	                'span',
+	                { className: 'infinite-tree-title' },
+	                props.label
+	            )
+	        )
+	    );
+	};
+	
+	rowRenderer.propTypes = {
+	    loading: _react2.default.PropTypes.bool,
+	    checked: _react2.default.PropTypes.bool,
+	    label: _react2.default.PropTypes.string
+	};
+	
+	exports.default = rowRenderer;
+
 /***/ }
 /******/ ]);
-//# sourceMappingURL=bundle.js.map?4a1d7f891db484a0a22b
+//# sourceMappingURL=bundle.js.map?49a58e02beea2c3c38b8
